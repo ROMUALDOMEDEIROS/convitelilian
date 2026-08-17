@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
-import type { ColumnDef, Row, TableDef } from '../schema';
+import type { ColumnDef, HeaderValues, Row, TableDef } from '../schema';
+import { extractHeaderValues } from './header';
 import { normalizeCell } from './normalize';
 import { normalizeHeader, squish } from './text';
 
@@ -15,6 +16,10 @@ export interface ImportReport {
   rows: Row[];
   /** linhas totalmente vazias descartadas */
   skippedBlank: number;
+  /** cabeçalho do formulário lido das linhas acima da linha de colunas */
+  header: HeaderValues;
+  /** rótulos de cabeçalho efetivamente encontrados no arquivo */
+  headerFound: string[];
 }
 
 export class ImportError extends Error {
@@ -235,6 +240,7 @@ export async function importFile(file: File, table: TableDef): Promise<ImportRep
   }
 
   const { rows, skippedBlank } = extractRows(bestMatrix, header, columns);
+  const form = extractHeaderValues(bestMatrix, header.index, table);
 
   return {
     fileName: file.name,
@@ -245,5 +251,7 @@ export async function importFile(file: File, table: TableDef): Promise<ImportRep
     encoding,
     rows,
     skippedBlank,
+    header: form.values,
+    headerFound: form.found,
   };
 }

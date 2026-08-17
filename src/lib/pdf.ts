@@ -1,8 +1,9 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { formatHeaderValue } from './header';
 import { formatCell, isNumericColumn } from './normalize';
 import type { TableRow } from './rows';
-import type { TableDef } from '../schema';
+import type { HeaderValues, TableDef } from '../schema';
 
 /** Margem da folha, em mm, nos quatro lados. */
 const MARGIN = 15;
@@ -37,13 +38,54 @@ function drawFooters(doc: jsPDF): void {
   }
 }
 
-export function exportTablePdf(table: TableDef, rows: TableRow[]): void {
+/** Largura do rótulo no bloco de cabeçalho, em mm. */
+const LABEL_WIDTH = 45;
+
+/** Bloco de cabeçalho do formulário (Data, Cmt. da Guarda, ...) em rótulo/valor
+ *  empilhado, como nas linhas de topo da folha original. Devolve o Y do fim. */
+function drawFormHeader(
+  doc: jsPDF,
+  table: TableDef,
+  header: HeaderValues,
+  usableWidth: number,
+  startY: number,
+): number {
+  autoTable(doc, {
+    body: table.headerFields.map((field) => [
+      field.label,
+      formatHeaderValue(field, header[field.key] ?? ''),
+    ]),
+    startY,
+    margin: { left: MARGIN, right: MARGIN },
+    theme: 'grid',
+    styles: {
+      font: 'helvetica',
+      fontSize: 9,
+      cellPadding: 1.5,
+      overflow: 'linebreak',
+      lineColor: [110, 110, 110],
+      lineWidth: 0.1,
+      textColor: [0, 0, 0],
+    },
+    columnStyles: {
+      0: { cellWidth: LABEL_WIDTH, fontStyle: 'bold', fillColor: [240, 240, 240] },
+      1: { cellWidth: usableWidth - LABEL_WIDTH },
+    },
+  });
+
+  return (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
+}
+
+export function exportTablePdf(table: TableDef, header: HeaderValues, rows: TableRow[]): void {
   const doc = new jsPDF({ orientation: table.orientation, unit: 'mm', format: 'a4' });
+  const usableWidth = doc.internal.pageSize.getWidth() - 2 * MARGIN;
 
   // Título apenas na primeira página.
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
   doc.text(table.title, MARGIN, MARGIN + 5);
+
+  const headerEndY = drawFormHeader(doc, table, header, usableWidth, MARGIN + 9);
 
   const columnStyles: Record<number, { cellWidth: number; halign: 'left' | 'right' }> = {};
   table.columns.forEach((column, index) => {
@@ -58,7 +100,7 @@ export function exportTablePdf(table: TableDef, rows: TableRow[]): void {
     body: rows.map((row) =>
       table.columns.map((column) => formatCell(row.cells[column.key] ?? '', column)),
     ),
-    startY: MARGIN + 12,
+    startY: headerEndY + 4,
     margin: {
       top: MARGIN,
       right: MARGIN,

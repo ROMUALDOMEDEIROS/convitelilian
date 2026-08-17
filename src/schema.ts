@@ -17,19 +17,38 @@ export interface ColumnDef {
   pdfWidth: number;
 }
 
+/** Campo do bloco de cabeçalho do formulário (Data, Cmt. da Guarda, etc.). */
+export interface HeaderFieldDef {
+  key: string;
+  label: string;
+  /** 'data' guarda ISO (aaaa-mm-dd) e é preenchida com hoje ao abrir a tela */
+  type: 'data' | 'texto';
+  /** rótulos alternativos aceitos ao extrair o cabeçalho de um arquivo importado */
+  aliases?: string[];
+}
+
 export interface TableDef {
   id: 'tabela1' | 'tabela2';
   title: string;
   orientation: 'portrait' | 'landscape';
   fileName: string;
+  headerFields: HeaderFieldDef[];
   columns: ColumnDef[];
 }
+
+/** Valor de cabeçalho por chave. A data fica em ISO; o resto é texto livre. */
+export type HeaderValues = Record<string, string>;
 
 export const TABELA1: TableDef = {
   id: 'tabela1',
   title: 'CONTROLE DE ENTRADA E SAÍDA DE VIATURAS',
   orientation: 'portrait',
   fileName: 'tabela1.pdf',
+  headerFields: [
+    { key: 'data', label: 'DATA', type: 'data' },
+    { key: 'cmt', label: 'CMT. DA GUARDA', type: 'texto', aliases: ['CMT DA GUARDA'] },
+    { key: 'vigilante', label: 'VIGILANTE', type: 'texto' },
+  ],
   columns: [
     { key: 'entrada', label: 'Entrada', type: 'hora', pdfWidth: 25 },
     { key: 'saida', label: 'Saída', type: 'hora', pdfWidth: 25 },
@@ -44,6 +63,12 @@ export const TABELA2: TableDef = {
   title: 'CONTROLE DE ENTRADA DE PAIS / RESPONSÁVEIS',
   orientation: 'landscape',
   fileName: 'tabela2.pdf',
+  headerFields: [
+    { key: 'data', label: 'DATA', type: 'data' },
+    { key: 'cmt', label: 'CMT. DA GUARDA', type: 'texto', aliases: ['CMT DA GUARDA'] },
+    { key: 'vigilante', label: 'VIGILANTE', type: 'texto' },
+    { key: 'ala', label: 'ALA DE SERVIÇO', type: 'texto' },
+  ],
   // soma = 267mm = 297 (A4 paisagem) - 2 x 15mm de margem
   columns: [
     { key: 'hora', label: 'HORA', type: 'hora', pdfWidth: 22 },

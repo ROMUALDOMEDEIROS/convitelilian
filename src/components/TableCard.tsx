@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import DataTable from './DataTable';
+import FormHeader from './FormHeader';
 import { exportTablePdf } from '../lib/pdf';
 import type { TableActions, TableState } from '../hooks/useTableState';
 import type { TableDef } from '../schema';
@@ -13,7 +14,7 @@ interface Props {
 
 export default function TableCard({ table, label, state, actions }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { report, error, rows } = state;
+  const { report, error, rows, header } = state;
 
   return (
     <section className="mb-10">
@@ -54,7 +55,7 @@ export default function TableCard({ table, label, state, actions }: Props) {
         <button
           type="button"
           className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
-          onClick={() => exportTablePdf(table, rows)}
+          onClick={() => exportTablePdf(table, header, rows)}
         >
           Exportar {label}
         </button>
@@ -72,8 +73,12 @@ export default function TableCard({ table, label, state, actions }: Props) {
           {report.separator && `, separador "${report.separator}"`}
           {report.encoding && `, ${report.encoding}`}
           {report.skippedBlank > 0 && `, ${report.skippedBlank} linha(s) vazia(s) descartada(s)`}
+          {report.headerFound.length > 0 &&
+            `. Cabeçalho lido do arquivo: ${report.headerFound.join(', ')}`}
         </p>
       )}
+
+      <FormHeader table={table} header={header} actions={actions} />
 
       <DataTable table={table} rows={rows} actions={actions} />
     </section>
