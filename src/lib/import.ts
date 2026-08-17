@@ -1,11 +1,7 @@
 import * as XLSX from 'xlsx';
 import type { ColumnDef, Row, TableDef } from '../schema';
-import {
-  normalizeHeader,
-  normalizeHora,
-  parseNumeroBR,
-  squish,
-} from './text';
+import { normalizeCell } from './normalize';
+import { normalizeHeader, squish } from './text';
 
 export interface ImportReport {
   fileName: string;
@@ -153,26 +149,6 @@ function findHeader(matrix: string[][], columns: ColumnDef[]): HeaderMatch {
   }
 
   return best;
-}
-
-function normalizeCell(value: string, column: ColumnDef): string {
-  const raw = squish(value);
-  if (raw === '') return '';
-
-  switch (column.type) {
-    case 'hora':
-      return normalizeHora(raw);
-    case 'numero':
-    case 'moeda': {
-      const n = parseNumeroBR(raw);
-      // valor canônico com ponto decimal; a formatação BR acontece na exibição
-      return n === null ? raw : String(n);
-    }
-    case 'data':
-    case 'texto':
-    default:
-      return raw;
-  }
 }
 
 function extractRows(
