@@ -14,7 +14,7 @@ interface Props {
 
 export default function TableCard({ table, label, state, actions }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { report, error, rows, header } = state;
+  const { report, error, rows, header, restored } = state;
 
   return (
     <section className="mb-10">
@@ -59,12 +59,31 @@ export default function TableCard({ table, label, state, actions }: Props) {
         >
           Exportar {label}
         </button>
+        <button
+          type="button"
+          className="border border-gray-400 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+          onClick={() => {
+            const aviso =
+              rows.length > 0
+                ? `Apagar as ${rows.length} linha(s) e o cabeçalho de "${table.title}"? Isso não pode ser desfeito.`
+                : `Limpar o cabeçalho de "${table.title}"?`;
+            if (window.confirm(aviso)) actions.clearAll();
+          }}
+        >
+          Limpar
+        </button>
         <span className="text-xs text-gray-500">
           {rows.length} linha{rows.length === 1 ? '' : 's'}
         </span>
       </div>
 
       {error && <p className="mb-2 text-sm text-red-700">{error}</p>}
+
+      {restored && !report && (
+        <p className="mb-2 text-xs text-gray-500">
+          Conteúdo restaurado deste navegador. Use “Limpar” para começar um turno novo.
+        </p>
+      )}
 
       {report && !error && (
         <p className="mb-2 text-xs text-gray-500">
