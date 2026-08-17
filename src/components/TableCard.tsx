@@ -1,8 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
+import ConfirmarBotao from './ConfirmarBotao';
 import DataTable from './DataTable';
 import FormHeader from './FormHeader';
+import SheetPreview from './SheetPreview';
 import SyncBar from './SyncBar';
-import { buildTablePdf, exportTablePdf } from '../lib/pdf';
+import { exportTablePdf } from '../lib/pdf';
 import { DEMO } from '../lib/demo';
 import { EXEMPLOS } from '../lib/exemplo';
 import { useDbSync } from '../hooks/useDbSync';
@@ -22,18 +24,13 @@ export default function TableCard({ table, label, state, actions }: Props) {
   // memoizado para não gerar um array novo a cada render do card
   const cells = useMemo(() => rows.map((row) => row.cells), [rows]);
   const { status: sync, salvarAgora, intervaloMs } = useDbSync(table, header, cells);
-  // No visualizador de artefatos o sandbox bloqueia downloads, então o modo
-  // demonstração mostra o PDF na própria página em vez de baixá-lo.
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  // No modo demonstração a página roda num iframe com sandbox, onde o leitor de
+  // PDF do navegador não abre. Em vez do arquivo, mostra a prévia em HTML.
+  const [mostrarPreview, setMostrarPreview] = useState(false);
 
   function exportar() {
-    if (!DEMO) {
-      exportTablePdf(table, header, rows);
-      return;
-    }
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    const url = buildTablePdf(table, header, rows).output('bloburl');
-    setPreviewUrl(String(url));
+    if (DEMO) setMostrarPreview(true);
+    else exportTablePdf(table, header, rows);
   }
 
   return (
@@ -88,19 +85,16 @@ export default function TableCard({ table, label, state, actions }: Props) {
             Carregar exemplo
           </button>
         )}
-        <button
-          type="button"
-          className="border border-gray-400 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
-          onClick={() => {
-            const aviso =
-              rows.length > 0
-                ? `Apagar as ${rows.length} linha(s) e o cabeçalho de "${table.title}"? Isso não pode ser desfeito.`
-                : `Limpar o cabeçalho de "${table.title}"?`;
-            if (window.confirm(aviso)) actions.clearAll();
-          }}
-        >
-          Limpar
-        </button>
+        <ConfirmarBotao
+          label="Limpar"
+          pergunta={
+            rows.length > 0
+              ? `Apagar ${rows.length} linha(s) e o cabeçalho? Não pode ser desfeito.`
+              : 'Limpar o cabeçalho desta folha?'
+          }
+          confirmar="Sim, limpar"
+          onConfirm={actions.clearAll}
+        />
         <span className="text-xs text-gray-500">
           {rows.length} linha{rows.length === 1 ? '' : 's'}
         </span>
@@ -132,24 +126,15 @@ export default function TableCard({ table, label, state, actions }: Props) {
 
       <DataTable table={table} rows={rows} actions={actions} />
 
-      {DEMO && previewUrl && (
-        <div className="mt-3 border border-gray-300">
-          <div className="flex items-center justify-between border-b border-gray-300 bg-gray-50 px-3 py-1.5 text-xs">
-            <span className="font-bold">{table.fileName}</span>
-            <button
-              type="button"
-              className="border border-gray-400 bg-white px-2 py-1 hover:bg-gray-100"
-              onClick={() => {
-                URL.revokeObjectURL(previewUrl);
-                setPreviewUrl(null);
-              }}
-            >
-              Fechar
-            </button>
-          </div>
-          <iframe src={previewUrl} title={`PDF de ${table.title}`} className="h-[600px] w-full" />
-        </div>
+      {DEMO && mostrarPreview && (
+        <SheetPreview
+          table={table}
+          header={header}
+          rows={rows}
+          onFechar={() => setMostrarPreview(false)}
+        />
       )}
+
     </section>
   );
 }

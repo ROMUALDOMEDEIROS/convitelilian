@@ -16,9 +16,11 @@ export default function App() {
           <strong>Versão de demonstração, para avaliar a tela.</strong> Aqui você pode importar
           uma planilha, digitar, adicionar e excluir linhas e ver os dois PDFs. Duas diferenças
           em relação à versão instalada na unidade: o botão <strong>Salvar no banco</strong> está
-          desativado, porque o banco de dados fica num servidor da própria unidade; e o PDF é
-          exibido nesta página em vez de baixado, porque este visualizador bloqueia downloads.
-          Nada do que você digitar aqui sai deste navegador.
+          desativado, porque o banco de dados fica num servidor da própria unidade; e{' '}
+          <strong>Ver PDF</strong> mostra a folha desenhada na tela, nas medidas reais do A4, em vez
+          de baixar o arquivo — este visualizador não permite downloads nem abrir PDF. Na versão
+          instalada, o mesmo botão gera e baixa o PDF. Nada do que você digitar aqui sai deste
+          navegador.
         </div>
       )}
 
