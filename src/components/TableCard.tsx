@@ -1,7 +1,9 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import DataTable from './DataTable';
 import FormHeader from './FormHeader';
+import SyncBar from './SyncBar';
 import { exportTablePdf } from '../lib/pdf';
+import { useDbSync } from '../hooks/useDbSync';
 import type { TableActions, TableState } from '../hooks/useTableState';
 import type { TableDef } from '../schema';
 
@@ -15,6 +17,9 @@ interface Props {
 export default function TableCard({ table, label, state, actions }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { report, error, rows, header, restored } = state;
+  // memoizado para não gerar um array novo a cada render do card
+  const cells = useMemo(() => rows.map((row) => row.cells), [rows]);
+  const { status: sync, salvarAgora, intervaloMs } = useDbSync(table, header, cells);
 
   return (
     <section className="mb-10">
@@ -96,6 +101,8 @@ export default function TableCard({ table, label, state, actions }: Props) {
             `. Cabeçalho lido do arquivo: ${report.headerFound.join(', ')}`}
         </p>
       )}
+
+      <SyncBar status={sync} intervaloMs={intervaloMs} onSalvar={salvarAgora} />
 
       <FormHeader table={table} header={header} actions={actions} />
 

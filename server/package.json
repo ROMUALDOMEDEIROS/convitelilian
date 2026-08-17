@@ -1,0 +1,15 @@
+{
+  "name": "registro-guarda-server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Backend local do Registro da Guarda. Roda na rede interna da unidade.",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "13.0.3",
+    "express": "4.21.2"
+  }
+}
