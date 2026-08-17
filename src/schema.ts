@@ -3,6 +3,8 @@
 // Aba VIATURAS  (linhas 8-88, área de impressão B1:F88, retrato)
 // Aba PAIS-VISITANTES (linhas 8-85, área de impressão B1:G85, paisagem)
 
+import type { ListKey } from './lib/lists';
+
 export type ColumnType = 'texto' | 'hora' | 'numero' | 'moeda' | 'data';
 
 export interface ColumnDef {
@@ -13,6 +15,8 @@ export interface ColumnDef {
   type: ColumnType;
   /** grafias alternativas aceitas na importação, além de `label` */
   aliases?: string[];
+  /** quando presente, a célula autopreenche a partir desta lista cadastrada */
+  lista?: ListKey;
   /** largura da coluna no PDF, em mm */
   pdfWidth: number;
 }
@@ -52,9 +56,9 @@ export const TABELA1: TableDef = {
   columns: [
     { key: 'entrada', label: 'Entrada', type: 'hora', pdfWidth: 25 },
     { key: 'saida', label: 'Saída', type: 'hora', pdfWidth: 25 },
-    { key: 'interna', label: 'Interna', type: 'texto', pdfWidth: 40 },
-    { key: 'externa', label: 'Externa', type: 'texto', pdfWidth: 40 },
-    { key: 'condutor', label: 'Condutor', type: 'texto', pdfWidth: 50 },
+    { key: 'interna', label: 'Interna', type: 'texto', lista: 'vtr', pdfWidth: 40 },
+    { key: 'externa', label: 'Externa', type: 'texto', lista: 'vtr', pdfWidth: 40 },
+    { key: 'condutor', label: 'Condutor', type: 'texto', lista: 'condutor', pdfWidth: 50 },
   ],
 };
 
@@ -76,7 +80,7 @@ export const TABELA2: TableDef = {
     { key: 'aluno', label: 'ALUNO', type: 'texto', pdfWidth: 57 },
     { key: 'serieTurma', label: 'SÉRIE/TURMA', type: 'texto', pdfWidth: 30 },
     { key: 'destino', label: 'DESTINO', type: 'texto', pdfWidth: 52 },
-    { key: 'autorizadoPor', label: 'AUTORIZADO POR', type: 'texto', pdfWidth: 44 },
+    { key: 'autorizadoPor', label: 'AUTORIZADO POR', type: 'texto', lista: 'condutor', pdfWidth: 44 },
   ],
 };
 

@@ -9,10 +9,12 @@ import { DEMO } from '../lib/demo';
 import { EXEMPLOS } from '../lib/exemplo';
 import { useDbSync } from '../hooks/useDbSync';
 import type { TableActions, TableState } from '../hooks/useTableState';
+import type { Listas } from '../lib/lists';
 import type { TableDef } from '../schema';
 
 interface Props {
   table: TableDef;
+  listas: Listas;
   /** Como esta folha é chamada nos botões. "Tabela 1" e "Tabela 2" não diziam
    *  nada a quem opera; o nome do arquivo gerado segue sendo tabela1.pdf e
    *  tabela2.pdf, como pede a especificação. */
@@ -21,7 +23,7 @@ interface Props {
   actions: TableActions;
 }
 
-export default function TableCard({ table, label, state, actions }: Props) {
+export default function TableCard({ table, label, listas, state, actions }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const { report, error, rows, header, restored } = state;
   // memoizado para não gerar um array novo a cada render do card
@@ -127,7 +129,7 @@ export default function TableCard({ table, label, state, actions }: Props) {
 
       <FormHeader table={table} header={header} actions={actions} />
 
-      <DataTable table={table} rows={rows} actions={actions} />
+      <DataTable table={table} rows={rows} actions={actions} listas={listas} />
 
       {DEMO && mostrarPreview && (
         <SheetPreview

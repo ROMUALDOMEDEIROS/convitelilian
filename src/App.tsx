@@ -1,9 +1,12 @@
+import ListsPanel from './components/ListsPanel';
 import TableCard from './components/TableCard';
+import { useLists } from './hooks/useLists';
 import { useTableState } from './hooks/useTableState';
 import { DEMO } from './lib/demo';
 import { TABELA1, TABELA2 } from './schema';
 
 export default function App() {
+  const { listas, erro: erroListas, aviso: avisoListas, actions: listActions } = useLists();
   const [state1, actions1] = useTableState(TABELA1);
   const [state2, actions2] = useTableState(TABELA2);
 
@@ -24,8 +27,27 @@ export default function App() {
         </div>
       )}
 
-      <TableCard table={TABELA1} label="viaturas" state={state1} actions={actions1} />
-      <TableCard table={TABELA2} label="pais / responsáveis" state={state2} actions={actions2} />
+      <ListsPanel
+        listas={listas}
+        erro={erroListas}
+        aviso={avisoListas}
+        actions={listActions}
+      />
+
+      <TableCard
+        table={TABELA1}
+        label="viaturas"
+        listas={listas}
+        state={state1}
+        actions={actions1}
+      />
+      <TableCard
+        table={TABELA2}
+        label="pais / responsáveis"
+        listas={listas}
+        state={state2}
+        actions={actions2}
+      />
     </main>
   );
 }

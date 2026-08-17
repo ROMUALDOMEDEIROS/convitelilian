@@ -12,6 +12,8 @@ O que ele faz:
 
 - **importa** as planilhas atuais (`.csv`, `.xlsx` e o próprio `.xlsm`), achando
   as colunas pelo nome — inclusive o cabeçalho de duas alturas da folha de viaturas;
+- **cadastro de viaturas e condutores** já preenchido com as 22 viaturas e os 68
+  condutores da aba `Dados`, editável e com **autopreenchimento** ao digitar;
 - **digita direto na tela**, com adicionar e excluir linha;
 - **data automática**, preenchida com o dia de hoje mas gravada como valor fixo:
   ela não se reescreve sozinha como o `=HOJE()` da planilha antiga;
@@ -58,6 +60,32 @@ Na primeira vez ele instala tudo (leva alguns minutos e precisa de internet
 4. Ao fim do turno, **Exportar** gera o PDF para imprimir e arquivar.
 5. **Limpar** encerra o turno e devolve a data para hoje.
 
+### Cadastro de viaturas e condutores
+
+No topo da tela, em **Cadastro de viaturas e condutores**, ficam as duas listas
+que alimentam o autopreenchimento das colunas *Interna*, *Externa*, *Condutor* e
+*Autorizado por*. Já vêm com os nomes da planilha antiga.
+
+- **Acrescentar**: digite e tecle Enter. Nome repetido é recusado, comparando
+  sem acento e sem maiúsculas — `ao 42` não entra se `AO 42` já existe.
+- **Editar**: clique no nome e corrija. A ordem alfabética é refeita ao sair.
+- **Excluir**: botão `✕` da linha.
+- **Importar lista**: aceita `.csv`, `.txt`, `.xlsx` e `.xlsm`. Procura a coluna
+  `VTR` ou `CONDUTOR`; um arquivo com um nome por linha também serve. Jogando o
+  `.xlsm` antigo, ele acha a aba `Dados` sozinho — e o aviso diz de qual aba e
+  coluna leu, para você conferir.
+- **Restaurar original**: volta aos nomes da planilha antiga.
+
+Ao digitar numa célula dessas colunas, aparece a lista filtrada. **Acento não
+atrapalha**: `aragao` acha `ARAGÃO SGT`, `ademesio` acha `ADEMÉSIO SGT`. Também
+dá para procurar por parte do nome — `sgt` traz todos os sargentos. Use as setas
+e Enter, ou clique.
+
+> **A lista sugere, não obriga.** Um condutor que não está cadastrado pode ser
+> digitado normalmente. Nada é bloqueado.
+
+As listas ficam salvas neste navegador, junto com o turno.
+
 ### A barra de sincronização
 
 Cada folha tem uma barra cinza no topo:
@@ -88,6 +116,10 @@ Não — é proposital. Significa que essa folha é de outro dia (você reabriu 
 turno anterior ou importou um arquivo antigo). Abaixo do campo aparece
 "não é a data de hoje". Se quer começar um turno novo, clique em **Limpar**.
 
+**Os nomes dos condutores mudaram. Onde eu altero?**
+Em **Cadastro de viaturas e condutores**, no topo. Acrescente, corrija ou exclua
+ali, e o autopreenchimento das folhas passa a usar a lista nova na hora.
+
 **Posso usar em dois computadores ao mesmo tempo?**
 Sim, mas com um cuidado: **cada máquina tem a sua própria cópia na tela**.
 Quem salvar por último sobrescreve o registro daquele dia no banco. Para dois
@@ -99,7 +131,8 @@ Só na primeira instalação. Depois, apenas a rede interna da unidade.
 
 **Onde ficam os dados?**
 No arquivo `server/data/registro.sqlite`, na própria máquina. Nada vai para a
-internet.
+internet. O cadastro de viaturas e condutores, por enquanto, fica salvo em cada
+navegador — não é compartilhado entre máquinas.
 
 ---
 
@@ -131,12 +164,25 @@ npm run dev -- --host
 Detalhes de configuração, rotas da API e recuperação de versões antigas estão em
 [`server/README.md`](server/README.md).
 
+### Sobre o cadastro copiado da planilha
+
+As listas iniciais saíram da aba `Dados` do `.xlsm`, com os espaços sobrando
+removidos (`AGATANGELO  PTTC`, `SGT JARDELINE `, `ULHOA TC `, `MAJ DOUGLAS `) e
+a ordem alfabética refeita. **Nenhum nome foi reescrito.** Ficaram como estavam
+as inconsistências de padrão que já existiam: a maioria é `NOME + POSTO`
+(`MATIAS SGT`), mas há `SGT JARDELINE` e `MAJ DOUGLAS` invertidos,
+`GEOVANE MAJ PTTC` com dois postos, e `CARMONA`, `ELIEZER`, `STEVES` e
+`MATIOLLI` sem posto. Corrija pela tela se quiser padronizar.
+
 ### Limitações que você deve conhecer
 
 - **Não há autenticação.** Qualquer máquina que alcance a porta 4000 lê e grava
   tudo, inclusive os nomes dos alunos. Isso foi uma decisão de projeto assumindo
   rede interna fechada. Se a rede não for isolada, restrinja por firewall.
 - **O tráfego não é criptografado** (HTTP puro). Em rede compartilhada, é legível.
+- **O cadastro de viaturas e condutores não vai para o banco ainda.** Cada
+  máquina tem a sua cópia. Usando mais de um posto, mantenha as listas
+  sincronizadas exportando e importando o arquivo, ou peça a gravação no banco.
 - **O `INICIAR.bat` usa o servidor de desenvolvimento.** Funciona bem, mas para
   uma instalação definitiva o correto é gerar a versão otimizada (`npm run build`)
   e servi-la, além de transformar o banco em serviço do Windows, que sobe junto
