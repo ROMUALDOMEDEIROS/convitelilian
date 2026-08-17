@@ -1,4 +1,5 @@
 import type { HeaderValues, Row, TableDef } from '../schema';
+import type { Listas } from './lists';
 
 /** Endereço do servidor da unidade. Configurável em build por VITE_API_URL
  *  quando o backend não estiver na mesma máquina do navegador. */
@@ -23,12 +24,15 @@ export class ApiError extends Error {
   /** true quando repetir a mesma requisição pode funcionar (rede, 5xx, 429).
    *  Um 400 é culpa do dado enviado: repetir não resolve. */
   readonly retryable: boolean;
+  /** corpo JSON da resposta de erro, quando houver — usado no 409 das listas */
+  readonly corpo: unknown;
 
-  constructor(message: string, status: number, retryable: boolean) {
+  constructor(message: string, status: number, retryable: boolean, corpo: unknown = null) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.retryable = retryable;
+    this.corpo = corpo;
   }
 }
 
@@ -61,7 +65,7 @@ async function request(path: string, init: RequestInit = {}): Promise<unknown> {
         : null) ?? `HTTP ${response.status}`;
     // 5xx e 429 são transitórios; 4xx de validação não são
     const retryable = response.status >= 500 || response.status === 429;
-    throw new ApiError(mensagem, response.status, retryable);
+    throw new ApiError(mensagem, response.status, retryable, body);
   }
 
   return body;
@@ -97,4 +101,63 @@ export async function saveSnapshot(
     rowCount: typeof result.rowCount === 'number' ? result.rowCount : rows.length,
     versao: typeof result.versao === 'number' ? result.versao : 0,
   };
+}
+
+export interface ListasRemotas {
+  listas: Listas;
+  versao: number;
+  updatedAt: string | null;
+}
+
+export interface ConflitoListas extends ListasRemotas {
+  conflito: true;
+}
+
+/** Lê o cadastro compartilhado. Devolve null quando o servidor está fora. */
+export async function fetchListas(): Promise<ListasRemotas | null> {
+  try {
+    const body = (await request('/api/listas')) as Partial<ListasRemotas>;
+    return {
+      listas: (body.listas as Listas) ?? { vtr: [], condutor: [] },
+      versao: typeof body.versao === 'number' ? body.versao : 0,
+      updatedAt: typeof body.updatedAt === 'string' ? body.updatedAt : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Grava o cadastro. Em conflito (409) devolve o estado atual do servidor com
+ * `conflito: true`, para a tela reconciliar em vez de estourar um erro. Falha
+ * de rede propaga ApiError, para o chamador reagendar o envio.
+ */
+export async function putListas(
+  listas: Listas,
+  baseVersao: number,
+  forcar = false,
+): Promise<ListasRemotas | ConflitoListas> {
+  try {
+    const body = (await request('/api/listas', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ listas, baseVersao, forcar }),
+    })) as Partial<ListasRemotas>;
+    return {
+      listas,
+      versao: typeof body.versao === 'number' ? body.versao : baseVersao + 1,
+      updatedAt: typeof body.updatedAt === 'string' ? body.updatedAt : null,
+    };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 409 && error.corpo) {
+      const c = error.corpo as Partial<ListasRemotas>;
+      return {
+        conflito: true,
+        listas: (c.listas as Listas) ?? listas,
+        versao: typeof c.versao === 'number' ? c.versao : baseVersao,
+        updatedAt: typeof c.updatedAt === 'string' ? c.updatedAt : null,
+      };
+    }
+    throw error;
+  }
 }

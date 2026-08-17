@@ -6,7 +6,13 @@ import { DEMO } from './lib/demo';
 import { TABELA1, TABELA2 } from './schema';
 
 export default function App() {
-  const { listas, erro: erroListas, aviso: avisoListas, actions: listActions } = useLists();
+  const {
+    listas,
+    erro: erroListas,
+    aviso: avisoListas,
+    sync: syncListas,
+    actions: listActions,
+  } = useLists();
   const [state1, actions1] = useTableState(TABELA1);
   const [state2, actions2] = useTableState(TABELA2);
 
@@ -31,6 +37,7 @@ export default function App() {
         listas={listas}
         erro={erroListas}
         aviso={avisoListas}
+        sync={syncListas}
         actions={listActions}
       />
 

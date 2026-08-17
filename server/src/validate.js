@@ -94,6 +94,49 @@ export function assertOrigem(value) {
   return value;
 }
 
+const LISTAS_CHAVES = ['vtr', 'condutor'];
+const MAX_LISTA = 2000;
+
+function assertLista(valor, label) {
+  if (!Array.isArray(valor)) throw new ValidationError(`${label} deve ser uma lista`);
+  if (valor.length > MAX_LISTA) {
+    throw new ValidationError(`${label} tem ${valor.length} nomes; o limite é ${MAX_LISTA}`);
+  }
+  return valor.map((item, i) => {
+    if (typeof item !== 'string') throw new ValidationError(`${label}[${i}] deve ser texto`);
+    if (item.length > MAX_VALUE_LENGTH) {
+      throw new ValidationError(`${label}[${i}] passa de ${MAX_VALUE_LENGTH} caracteres`);
+    }
+    return item;
+  });
+}
+
+/** Valida o corpo de um PUT /api/listas. */
+export function assertListasBody(body) {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    throw new ValidationError('corpo da requisição deve ser um objeto JSON');
+  }
+
+  const bruto = body.listas;
+  if (typeof bruto !== 'object' || bruto === null || Array.isArray(bruto)) {
+    throw new ValidationError('"listas" deve ser um objeto');
+  }
+
+  const listas = {};
+  for (const chave of LISTAS_CHAVES) listas[chave] = assertLista(bruto[chave] ?? [], chave);
+
+  const desconhecidas = Object.keys(bruto).filter((k) => !LISTAS_CHAVES.includes(k));
+  if (desconhecidas.length > 0) {
+    throw new ValidationError(`lista desconhecida: ${desconhecidas.join(', ')}`);
+  }
+
+  if (!Number.isInteger(body.baseVersao) || body.baseVersao < 0) {
+    throw new ValidationError('"baseVersao" deve ser um inteiro a partir de zero');
+  }
+
+  return { listas, baseVersao: body.baseVersao, forcar: body.forcar === true };
+}
+
 /** Valida o corpo de um PUT /api/snapshot/:tableId e devolve dados limpos. */
 export function assertSnapshotBody(body) {
   if (typeof body !== 'object' || body === null || Array.isArray(body)) {

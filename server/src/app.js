@@ -1,7 +1,9 @@
 import express from 'express';
+import { ConflitoDeVersao } from './db.js';
 import {
   ValidationError,
   assertDia,
+  assertListasBody,
   assertSnapshotBody,
   assertTableId,
 } from './validate.js';
@@ -87,6 +89,28 @@ export function createApp({ store, allowedOrigins = [], logger = console }) {
 
   app.get('/api/health', (_req, res) => {
     res.json({ ok: true, servico: 'registro-guarda', hora: new Date().toISOString() });
+  });
+
+  app.get('/api/listas', (_req, res, next) => {
+    try {
+      res.json({ ok: true, ...store.loadListas() });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.put('/api/listas', (req, res, next) => {
+    try {
+      const { listas, baseVersao, forcar } = assertListasBody(req.body);
+      const result = store.saveListas({ listas, baseVersao, forcar });
+      res.json({ ok: true, ...result });
+    } catch (error) {
+      if (error instanceof ConflitoDeVersao) {
+        // 409 devolve o estado atual, para a tela poder mostrar a diferença
+        return res.status(409).json({ erro: error.message, ...error.atual });
+      }
+      return next(error);
+    }
   });
 
   app.put('/api/snapshot/:tableId', (req, res, next) => {

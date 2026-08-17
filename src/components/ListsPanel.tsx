@@ -1,14 +1,34 @@
 import { useRef, useState } from 'react';
 import ConfirmarBotao from './ConfirmarBotao';
+import { DEMO } from '../lib/demo';
 import { LISTAS, type ListDef, type Listas } from '../lib/lists';
-import type { ListsActions } from '../hooks/useLists';
+import type { ListsActions, SyncListas } from '../hooks/useLists';
 
 interface Props {
   listas: Listas;
   erro: string | null;
   aviso: string | null;
+  sync: SyncListas;
   actions: ListsActions;
 }
+
+const SYNC_ROTULO: Record<SyncListas, string> = {
+  local: 'apenas neste navegador',
+  carregando: 'carregando do banco...',
+  salvando: 'gravando no banco...',
+  salvo: 'gravado no banco da unidade',
+  pendente: 'aguardando envio ao banco',
+  erro: 'sem conexão com o banco — salvo neste navegador',
+};
+
+const SYNC_COR: Record<SyncListas, string> = {
+  local: 'text-gray-500',
+  carregando: 'text-gray-500',
+  salvando: 'text-blue-700',
+  salvo: 'text-green-700',
+  pendente: 'text-amber-700',
+  erro: 'text-red-700',
+};
 
 function Coluna({
   def,
@@ -153,7 +173,7 @@ function Coluna({
   );
 }
 
-export default function ListsPanel({ listas, erro, aviso, actions }: Props) {
+export default function ListsPanel({ listas, erro, aviso, sync, actions }: Props) {
   const [aberto, setAberto] = useState(false);
   const total = LISTAS.reduce((soma, def) => soma + listas[def.key].length, 0);
 
@@ -171,8 +191,13 @@ export default function ListsPanel({ listas, erro, aviso, actions }: Props) {
             — {listas.vtr.length} viaturas, {listas.condutor.length} condutores
           </span>
         </span>
-        <span className="text-xs text-gray-600">
-          {aberto ? 'ocultar ▲' : 'abrir para editar ▼'}
+        <span className="flex items-center gap-2 text-xs">
+          {!DEMO && (
+            <span className={`font-bold ${SYNC_COR[sync]}`}>
+              {sync === 'salvo' ? '●' : '○'} {SYNC_ROTULO[sync]}
+            </span>
+          )}
+          <span className="text-gray-600">{aberto ? 'ocultar ▲' : 'abrir para editar ▼'}</span>
         </span>
       </button>
 
@@ -182,8 +207,8 @@ export default function ListsPanel({ listas, erro, aviso, actions }: Props) {
             Estes nomes alimentam o autopreenchimento das colunas{' '}
             <strong>Interna</strong>, <strong>Externa</strong>, <strong>Condutor</strong> e{' '}
             <strong>Autorizado por</strong>. Digitar continua livre: a lista sugere, não obriga —
-            dá para lançar um nome que não está cadastrado. As {total} entradas ficam salvas neste
-            navegador.
+            dá para lançar um nome que não está cadastrado. As {total} entradas{' '}
+            {DEMO ? 'ficam salvas neste navegador' : 'ficam salvas no banco da unidade, iguais em todas as máquinas'}.
           </p>
 
           {erro && <p className="mb-2 text-sm text-red-700">{erro}</p>}

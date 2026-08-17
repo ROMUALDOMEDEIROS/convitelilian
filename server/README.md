@@ -48,6 +48,8 @@ VITE_API_URL=http://10.0.0.20:4000 npm run build
 | `PUT` | `/api/snapshot/:tableId` | Grava o dia. Corpo: `{ dia, header, rows, origem }` |
 | `GET` | `/api/snapshot/:tableId?dia=aaaa-mm-dd` | Lê o registro de um dia |
 | `GET` | `/api/snapshot/:tableId/dias` | Lista os dias gravados |
+| `GET` | `/api/listas` | Lê o cadastro de viaturas e condutores |
+| `PUT` | `/api/listas` | Grava o cadastro. Corpo: `{ listas, baseVersao, forcar? }` |
 
 `tableId` é `tabela1` (viaturas) ou `tabela2` (pais/responsáveis).
 
@@ -55,6 +57,11 @@ VITE_API_URL=http://10.0.0.20:4000 npm run build
 
 - **`snapshot`** — um registro por (tabela, dia). O checkpoint automático
   sobrescreve o do dia corrente.
+- **`listas`** — linha única (id=1) com o cadastro compartilhado de viaturas e
+  condutores, versionado. `PUT /api/listas` usa controle otimista: `baseVersao`
+  precisa bater com a gravada, senão responde `409` com o estado atual, para o
+  cliente reconciliar. `forcar: true` sobrescreve.
+- **`listas_version`** — histórico de todo o cadastro, como o de snapshots.
 - **`snapshot_version`** — toda gravação também é anexada aqui. Se alguém
   apagar linhas por acidente e o auto-save disparar em seguida, o conteúdo
   anterior continua recuperável. São ~36 versões por turno de 12h, o que é
@@ -100,6 +107,6 @@ O que ele **não** faz, e você deve considerar:
 npm test
 ```
 
-24 testes cobrindo gravação, sobrescrita do dia, histórico de versões,
+36 testes cobrindo gravação, sobrescrita do dia, histórico de versões,
 isolamento entre tabelas, acentuação, validação, tentativa de SQL injection e
 CORS.

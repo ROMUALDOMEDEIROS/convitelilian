@@ -39,7 +39,32 @@ CREATE TABLE IF NOT EXISTS snapshot_version (
 
 CREATE INDEX IF NOT EXISTS idx_version_snapshot
   ON snapshot_version (snapshot_id, id DESC);
+
+-- Cadastro compartilhado de viaturas e condutores. Linha unica (id = 1): as
+-- duas listas mudam juntas, o que evita gravar metade do cadastro.
+CREATE TABLE IF NOT EXISTS listas (
+  id         INTEGER PRIMARY KEY CHECK (id = 1),
+  conteudo   TEXT    NOT NULL,
+  versao     INTEGER NOT NULL,
+  updated_at TEXT    NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS listas_version (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  conteudo TEXT    NOT NULL,
+  versao   INTEGER NOT NULL,
+  saved_at TEXT    NOT NULL
+);
 `;
+
+/** Erro de concorrencia: outra maquina gravou antes. */
+export class ConflitoDeVersao extends Error {
+  constructor(atual) {
+    super('a lista foi alterada em outra máquina');
+    this.name = 'ConflitoDeVersao';
+    this.atual = atual;
+  }
+}
 
 export function openDatabase(file) {
   // O teste do ":memory:" tem de ser feito ANTES de resolver o caminho: depois
@@ -76,6 +101,19 @@ export function openDatabase(file) {
              updated_at AS updatedAt
         FROM snapshot
        WHERE table_id = ? AND dia = ?
+    `),
+    getListas: db.prepare(`SELECT conteudo, versao, updated_at AS updatedAt FROM listas WHERE id = 1`),
+    upsertListas: db.prepare(`
+      INSERT INTO listas (id, conteudo, versao, updated_at)
+      VALUES (1, @conteudo, @versao, @now)
+      ON CONFLICT (id) DO UPDATE SET
+        conteudo   = excluded.conteudo,
+        versao     = excluded.versao,
+        updated_at = excluded.updated_at
+    `),
+    addListasVersion: db.prepare(`
+      INSERT INTO listas_version (conteudo, versao, saved_at)
+      VALUES (@conteudo, @versao, @now)
     `),
     listDays: db.prepare(`
       SELECT dia, row_count AS rowCount, updated_at AS updatedAt
@@ -125,5 +163,35 @@ export function openDatabase(file) {
     return stmt.listDays.all(tableId, limit);
   }
 
-  return { db, save, load, listDays, close: () => db.close() };
+  /** Cadastro atual. Versao 0 significa que nunca foi gravado. */
+  function loadListas() {
+    const linha = stmt.getListas.get();
+    if (!linha) return { listas: { vtr: [], condutor: [] }, versao: 0, updatedAt: null };
+    return {
+      listas: JSON.parse(linha.conteudo),
+      versao: linha.versao,
+      updatedAt: linha.updatedAt,
+    };
+  }
+
+  /**
+   * Grava o cadastro com controle otimista de versao: `baseVersao` e a versao
+   * em que o cliente se baseou. Divergindo da gravada, outra maquina alterou
+   * enquanto isso e a gravacao e recusada em vez de sobrescrever em silencio.
+   * `forcar` ignora a checagem, para o operador resolver o conflito de proposito.
+   */
+  const saveListas = db.transaction(({ listas, baseVersao, forcar }) => {
+    const atual = loadListas();
+    if (!forcar && baseVersao !== atual.versao) throw new ConflitoDeVersao(atual);
+
+    const now = new Date().toISOString();
+    const conteudo = JSON.stringify(listas);
+    const versao = atual.versao + 1;
+
+    stmt.upsertListas.run({ conteudo, versao, now });
+    stmt.addListasVersion.run({ conteudo, versao, now });
+    return { versao, updatedAt: now };
+  });
+
+  return { db, save, load, listDays, loadListas, saveListas, close: () => db.close() };
 }

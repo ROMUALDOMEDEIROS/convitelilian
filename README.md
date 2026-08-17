@@ -84,7 +84,13 @@ e Enter, ou clique.
 > **A lista sugere, não obriga.** Um condutor que não está cadastrado pode ser
 > digitado normalmente. Nada é bloqueado.
 
-As listas ficam salvas neste navegador, junto com o turno.
+**As listas ficam no banco da unidade, iguais em todas as máquinas.** O cabeçalho
+do painel mostra o estado: `● gravado no banco da unidade` quando está tudo
+sincronizado. Se o banco estiver fora do ar, você continua editando e as
+mudanças sobem sozinhas quando ele voltar.
+
+Se duas máquinas editarem o cadastro ao mesmo tempo, **as duas versões são
+unidas** — ninguém perde o que acrescentou.
 
 ### A barra de sincronização
 
@@ -131,8 +137,8 @@ Só na primeira instalação. Depois, apenas a rede interna da unidade.
 
 **Onde ficam os dados?**
 No arquivo `server/data/registro.sqlite`, na própria máquina. Nada vai para a
-internet. O cadastro de viaturas e condutores, por enquanto, fica salvo em cada
-navegador — não é compartilhado entre máquinas.
+internet. Os registros dos turnos e o cadastro de viaturas e condutores ficam
+os dois no banco.
 
 ---
 
@@ -164,6 +170,14 @@ npm run dev -- --host
 Detalhes de configuração, rotas da API e recuperação de versões antigas estão em
 [`server/README.md`](server/README.md).
 
+### Cadastro compartilhado, e reconciliação de conflitos
+
+O cadastro de viaturas e condutores é uma linha única na tabela `listas`, com
+controle otimista de versão: quem grava informa em que versão se baseou, e o
+servidor recusa com `409` se outra máquina gravou antes. A tela então funde as
+duas versões (união, sem duplicar) e regrava. Cada gravação também é anexada em
+`listas_version`, então nenhuma alteração se perde no histórico.
+
 ### Sobre o cadastro copiado da planilha
 
 As listas iniciais saíram da aba `Dados` do `.xlsm`, com os espaços sobrando
@@ -180,9 +194,6 @@ as inconsistências de padrão que já existiam: a maioria é `NOME + POSTO`
   tudo, inclusive os nomes dos alunos. Isso foi uma decisão de projeto assumindo
   rede interna fechada. Se a rede não for isolada, restrinja por firewall.
 - **O tráfego não é criptografado** (HTTP puro). Em rede compartilhada, é legível.
-- **O cadastro de viaturas e condutores não vai para o banco ainda.** Cada
-  máquina tem a sua cópia. Usando mais de um posto, mantenha as listas
-  sincronizadas exportando e importando o arquivo, ou peça a gravação no banco.
 - **O `INICIAR.bat` usa o servidor de desenvolvimento.** Funciona bem, mas para
   uma instalação definitiva o correto é gerar a versão otimizada (`npm run build`)
   e servi-la, além de transformar o banco em serviço do Windows, que sobe junto
