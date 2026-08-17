@@ -44,13 +44,14 @@ export const TABELA2: TableDef = {
   title: 'CONTROLE DE ENTRADA DE PAIS / RESPONSÁVEIS',
   orientation: 'landscape',
   fileName: 'tabela2.pdf',
+  // soma = 267mm = 297 (A4 paisagem) - 2 x 15mm de margem
   columns: [
     { key: 'hora', label: 'HORA', type: 'hora', pdfWidth: 22 },
-    { key: 'responsavel', label: 'PAIS / RESPONSÁVEIS', type: 'texto', pdfWidth: 60 },
-    { key: 'aluno', label: 'ALUNO', type: 'texto', pdfWidth: 55 },
-    { key: 'serieTurma', label: 'SÉRIE/TURMA', type: 'texto', pdfWidth: 28 },
-    { key: 'destino', label: 'DESTINO', type: 'texto', pdfWidth: 50 },
-    { key: 'autorizadoPor', label: 'AUTORIZADO POR', type: 'texto', pdfWidth: 42 },
+    { key: 'responsavel', label: 'PAIS / RESPONSÁVEIS', type: 'texto', pdfWidth: 62 },
+    { key: 'aluno', label: 'ALUNO', type: 'texto', pdfWidth: 57 },
+    { key: 'serieTurma', label: 'SÉRIE/TURMA', type: 'texto', pdfWidth: 30 },
+    { key: 'destino', label: 'DESTINO', type: 'texto', pdfWidth: 52 },
+    { key: 'autorizadoPor', label: 'AUTORIZADO POR', type: 'texto', pdfWidth: 44 },
   ],
 };
 

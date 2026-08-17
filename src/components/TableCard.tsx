@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import DataTable from './DataTable';
+import { exportTablePdf } from '../lib/pdf';
 import type { TableActions, TableState } from '../hooks/useTableState';
 import type { TableDef } from '../schema';
 
@@ -49,6 +50,13 @@ export default function TableCard({ table, label, state, actions }: Props) {
           onClick={actions.addRow}
         >
           + Adicionar linha
+        </button>
+        <button
+          type="button"
+          className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
+          onClick={() => exportTablePdf(table, rows)}
+        >
+          Exportar {label}
         </button>
         <span className="text-xs text-gray-500">
           {rows.length} linha{rows.length === 1 ? '' : 's'}
