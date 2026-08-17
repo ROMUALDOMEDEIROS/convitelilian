@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { sugestoes } from '../lib/lists';
+import { chave, sugestoes } from '../lib/lists';
 
 interface Props {
   value: string;
@@ -8,6 +8,8 @@ interface Props {
   className: string;
   onChange: (valor: string) => void;
   onCommit: () => void;
+  /** Cadastra o nome digitado na lista. Ausente = sem opção de cadastrar. */
+  onCadastrar?: (valor: string) => void;
 }
 
 interface Caixa {
@@ -16,16 +18,18 @@ interface Caixa {
   width: number;
 }
 
+type Linha = { tipo: 'opcao'; texto: string } | { tipo: 'cadastrar'; texto: string };
+
 /**
  * Campo de texto com autopreenchimento a partir de uma lista.
  *
- * Digitar é livre: a lista sugere, não obriga — um condutor novo pode ser
- * lançado sem estar cadastrado.
+ * Digitar é livre: a lista sugere, não obriga. Quando o texto não está na lista
+ * e `onCadastrar` foi passado, a última linha do menu vira um atalho para
+ * cadastrar o nome ali mesmo, sem ir ao painel do topo.
  *
- * A lista suspensa usa position: fixed, medida a partir do campo. Isso é
- * necessário porque a tabela vive num container com overflow-x-auto, e quando
- * um dos eixos rola o outro deixa de ser "visible": uma lista posicionada de
- * forma absoluta dentro da célula seria cortada pela borda do container.
+ * A lista suspensa usa position: fixed, medida a partir do campo, porque a
+ * tabela vive num container com overflow-x-auto: uma lista posicionada de forma
+ * absoluta dentro da célula seria cortada pela borda do container.
  */
 export default function AutoCompleteCell({
   value,
@@ -34,13 +38,24 @@ export default function AutoCompleteCell({
   className,
   onChange,
   onCommit,
+  onCadastrar,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [aberto, setAberto] = useState(false);
   const [destacado, setDestacado] = useState(-1);
   const [caixa, setCaixa] = useState<Caixa | null>(null);
+  const [cadastrado, setCadastrado] = useState<string | null>(null);
 
-  const lista = aberto ? sugestoes(opcoes, value) : [];
+  const texto = value.trim();
+  const jaExiste = texto !== '' && opcoes.some((o) => chave(o) === chave(texto));
+  const podeCadastrar = !!onCadastrar && texto !== '' && !jaExiste;
+
+  const linhas: Linha[] = aberto
+    ? [
+        ...sugestoes(opcoes, value).map((o): Linha => ({ tipo: 'opcao', texto: o })),
+        ...(podeCadastrar ? [{ tipo: 'cadastrar', texto } as Linha] : []),
+      ]
+    : [];
 
   const medir = useCallback(() => {
     const el = inputRef.current;
@@ -52,7 +67,6 @@ export default function AutoCompleteCell({
   useEffect(() => {
     if (!aberto) return;
     medir();
-    // rolagem em qualquer ancestral e mudança de tamanho movem o campo
     window.addEventListener('scroll', medir, true);
     window.addEventListener('resize', medir);
     return () => {
@@ -74,8 +88,20 @@ export default function AutoCompleteCell({
   function escolher(item: string) {
     onChange(item);
     fechar();
-    // devolve o foco para o campo, para seguir com Tab para a próxima coluna
     inputRef.current?.focus();
+  }
+
+  function cadastrar(nome: string) {
+    onCadastrar?.(nome);
+    setCadastrado(nome);
+    window.setTimeout(() => setCadastrado(null), 1600);
+    fechar();
+    inputRef.current?.focus();
+  }
+
+  function acionar(linha: Linha) {
+    if (linha.tipo === 'opcao') escolher(linha.texto);
+    else cadastrar(linha.texto);
   }
 
   function aoTeclar(evento: React.KeyboardEvent<HTMLInputElement>) {
@@ -85,20 +111,20 @@ export default function AutoCompleteCell({
         abrir();
         return;
       }
-      if (lista.length === 0) return;
+      if (linhas.length === 0) return;
       const passo = evento.key === 'ArrowDown' ? 1 : -1;
       setDestacado((atual) => {
         const proximo = atual + passo;
-        if (proximo < 0) return lista.length - 1;
-        if (proximo >= lista.length) return 0;
+        if (proximo < 0) return linhas.length - 1;
+        if (proximo >= linhas.length) return 0;
         return proximo;
       });
       return;
     }
 
-    if (evento.key === 'Enter' && aberto && destacado >= 0 && lista[destacado]) {
+    if (evento.key === 'Enter' && aberto && destacado >= 0 && linhas[destacado]) {
       evento.preventDefault();
-      escolher(lista[destacado]);
+      acionar(linhas[destacado]);
       return;
     }
 
@@ -134,31 +160,48 @@ export default function AutoCompleteCell({
         }}
       />
 
-      {aberto && lista.length > 0 && caixa && (
+      {aberto && linhas.length > 0 && caixa && (
         <ul
           role="listbox"
           className="fixed z-50 max-h-56 overflow-y-auto border border-gray-400 bg-white shadow-lg"
-          style={{ left: caixa.left, top: caixa.top, width: Math.max(caixa.width, 180) }}
+          style={{ left: caixa.left, top: caixa.top, width: Math.max(caixa.width, 200) }}
         >
-          {lista.map((item, i) => (
-            <li key={item}>
+          {linhas.map((linha, i) => (
+            <li key={linha.tipo === 'cadastrar' ? `+${linha.texto}` : linha.texto}>
               <button
                 type="button"
                 role="option"
                 aria-selected={i === destacado}
                 className={`block w-full px-2 py-1.5 text-left text-sm ${
-                  i === destacado ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'
-                }`}
-                // evita que o campo perca o foco antes do clique registrar
+                  i === destacado
+                    ? 'bg-blue-600 text-white'
+                    : linha.tipo === 'cadastrar'
+                      ? 'text-blue-700 hover:bg-blue-50'
+                      : 'hover:bg-gray-100'
+                } ${linha.tipo === 'cadastrar' ? 'border-t border-gray-200' : ''}`}
                 onMouseDown={(e) => e.preventDefault()}
                 onMouseEnter={() => setDestacado(i)}
-                onClick={() => escolher(item)}
+                onClick={() => acionar(linha)}
               >
-                {item}
+                {linha.tipo === 'cadastrar' ? (
+                  <>+ Acrescentar “{linha.texto}” ao cadastro</>
+                ) : (
+                  linha.texto
+                )}
               </button>
             </li>
           ))}
         </ul>
+      )}
+
+      {cadastrado && (
+        <span
+          role="status"
+          className="pointer-events-none fixed z-50 mt-0.5 bg-green-700 px-2 py-0.5 text-xs text-white shadow"
+          style={caixa ? { left: caixa.left, top: caixa.top } : undefined}
+        >
+          ✓ “{cadastrado}” adicionado ao cadastro
+        </span>
       )}
     </>
   );

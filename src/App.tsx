@@ -3,6 +3,7 @@ import TableCard from './components/TableCard';
 import { useLists } from './hooks/useLists';
 import { useTableState } from './hooks/useTableState';
 import { DEMO } from './lib/demo';
+import type { ListKey } from './lib/lists';
 import { TABELA1, TABELA2 } from './schema';
 
 export default function App() {
@@ -15,6 +16,11 @@ export default function App() {
   } = useLists();
   const [state1, actions1] = useTableState(TABELA1);
   const [state2, actions2] = useTableState(TABELA2);
+
+  // Cadastrar direto de uma célula da folha: mesma ação do painel do topo.
+  const cadastrar = (key: ListKey, valor: string) => {
+    listActions.adicionar(key, valor);
+  };
 
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
@@ -45,6 +51,7 @@ export default function App() {
         table={TABELA1}
         label="viaturas"
         listas={listas}
+        onCadastrar={cadastrar}
         state={state1}
         actions={actions1}
       />
@@ -52,6 +59,7 @@ export default function App() {
         table={TABELA2}
         label="pais / responsáveis"
         listas={listas}
+        onCadastrar={cadastrar}
         state={state2}
         actions={actions2}
       />

@@ -1,6 +1,6 @@
 import AutoCompleteCell from './AutoCompleteCell';
 import { isNumericColumn } from '../lib/normalize';
-import type { Listas } from '../lib/lists';
+import type { ListKey, Listas } from '../lib/lists';
 import type { TableRow } from '../lib/rows';
 import type { TableDef } from '../schema';
 import type { TableActions } from '../hooks/useTableState';
@@ -10,6 +10,7 @@ interface Props {
   rows: TableRow[];
   actions: TableActions;
   listas: Listas;
+  onCadastrar: (key: ListKey, valor: string) => void;
 }
 
 function campoClasse(column: { type: string }): string {
@@ -18,7 +19,7 @@ function campoClasse(column: { type: string }): string {
   }`;
 }
 
-export default function DataTable({ table, rows, actions, listas }: Props) {
+export default function DataTable({ table, rows, actions, listas, onCadastrar }: Props) {
   if (rows.length === 0) {
     return (
       <p className="text-sm text-gray-500 py-4">
@@ -61,6 +62,7 @@ export default function DataTable({ table, rows, actions, listas }: Props) {
                       className={campoClasse(column)}
                       onChange={(valor) => actions.editCell(row.id, column.key, valor)}
                       onCommit={() => actions.commitCell(row.id, column.key)}
+                      onCadastrar={(valor) => onCadastrar(column.lista!, valor)}
                     />
                   ) : (
                     <input

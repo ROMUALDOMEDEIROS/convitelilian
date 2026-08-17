@@ -84,6 +84,13 @@ e Enter, ou clique.
 > **A lista sugere, não obriga.** Um condutor que não está cadastrado pode ser
 > digitado normalmente. Nada é bloqueado.
 
+**Cadastrar direto da folha, sem subir ao painel:** ao digitar na coluna
+*Interna*, *Externa*, *Condutor* ou *Autorizado por* um nome que ainda não
+existe, o menu mostra **“+ Acrescentar «nome» ao cadastro”**. Um clique (ou
+seta até ele e Enter) e o nome entra na lista, já disponível nas próximas
+linhas. É a forma mais rápida de incluir uma viatura ou condutor novo — não
+precisa de arquivo nem de abrir o painel.
+
 **As listas ficam no banco da unidade, iguais em todas as máquinas.** O cabeçalho
 do painel mostra o estado: `● gravado no banco da unidade` quando está tudo
 sincronizado. Se o banco estiver fora do ar, você continua editando e as
