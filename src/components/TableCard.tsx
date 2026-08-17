@@ -1,8 +1,10 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import DataTable from './DataTable';
 import FormHeader from './FormHeader';
 import SyncBar from './SyncBar';
-import { exportTablePdf } from '../lib/pdf';
+import { buildTablePdf, exportTablePdf } from '../lib/pdf';
+import { DEMO } from '../lib/demo';
+import { EXEMPLOS } from '../lib/exemplo';
 import { useDbSync } from '../hooks/useDbSync';
 import type { TableActions, TableState } from '../hooks/useTableState';
 import type { TableDef } from '../schema';
@@ -20,6 +22,19 @@ export default function TableCard({ table, label, state, actions }: Props) {
   // memoizado para não gerar um array novo a cada render do card
   const cells = useMemo(() => rows.map((row) => row.cells), [rows]);
   const { status: sync, salvarAgora, intervaloMs } = useDbSync(table, header, cells);
+  // No visualizador de artefatos o sandbox bloqueia downloads, então o modo
+  // demonstração mostra o PDF na própria página em vez de baixá-lo.
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  function exportar() {
+    if (!DEMO) {
+      exportTablePdf(table, header, rows);
+      return;
+    }
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const url = buildTablePdf(table, header, rows).output('bloburl');
+    setPreviewUrl(String(url));
+  }
 
   return (
     <section className="mb-10">
@@ -60,10 +75,19 @@ export default function TableCard({ table, label, state, actions }: Props) {
         <button
           type="button"
           className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
-          onClick={() => exportTablePdf(table, header, rows)}
+          onClick={exportar}
         >
-          Exportar {label}
+          {DEMO ? 'Ver PDF' : `Exportar ${label}`}
         </button>
+        {DEMO && (
+          <button
+            type="button"
+            className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
+            onClick={() => actions.loadExample(EXEMPLOS[table.id])}
+          >
+            Carregar exemplo
+          </button>
+        )}
         <button
           type="button"
           className="border border-gray-400 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
@@ -107,6 +131,25 @@ export default function TableCard({ table, label, state, actions }: Props) {
       <FormHeader table={table} header={header} actions={actions} />
 
       <DataTable table={table} rows={rows} actions={actions} />
+
+      {DEMO && previewUrl && (
+        <div className="mt-3 border border-gray-300">
+          <div className="flex items-center justify-between border-b border-gray-300 bg-gray-50 px-3 py-1.5 text-xs">
+            <span className="font-bold">{table.fileName}</span>
+            <button
+              type="button"
+              className="border border-gray-400 bg-white px-2 py-1 hover:bg-gray-100"
+              onClick={() => {
+                URL.revokeObjectURL(previewUrl);
+                setPreviewUrl(null);
+              }}
+            >
+              Fechar
+            </button>
+          </div>
+          <iframe src={previewUrl} title={`PDF de ${table.title}`} className="h-[600px] w-full" />
+        </div>
+      )}
     </section>
   );
 }

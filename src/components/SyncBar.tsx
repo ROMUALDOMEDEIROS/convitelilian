@@ -1,3 +1,4 @@
+import { DEMO } from '../lib/demo';
 import type { SyncStatus } from '../hooks/useDbSync';
 
 interface Props {
@@ -12,6 +13,7 @@ const CORES: Record<SyncStatus['estado'], string> = {
   salvo: 'text-green-700',
   pendente: 'text-amber-700',
   erro: 'text-red-700',
+  demo: 'text-gray-600',
 };
 
 const ROTULOS: Record<SyncStatus['estado'], string> = {
@@ -20,6 +22,7 @@ const ROTULOS: Record<SyncStatus['estado'], string> = {
   salvo: 'gravado no banco',
   pendente: 'aguardando envio ao banco',
   erro: 'falha ao gravar',
+  demo: 'banco de dados indisponível nesta versão de teste',
 };
 
 /** O rótulo do intervalo precisa aguentar valores abaixo de um minuto, já que
@@ -51,7 +54,8 @@ export default function SyncBar({ status, intervaloMs, onSalvar }: Props) {
         type="button"
         className="border border-gray-400 bg-white px-3 py-1.5 text-sm hover:bg-gray-100 disabled:opacity-50"
         onClick={onSalvar}
-        disabled={estado === 'salvando'}
+        disabled={DEMO || estado === 'salvando'}
+        title={DEMO ? 'Disponível na versão instalada na unidade' : undefined}
       >
         Salvar no banco
       </button>
@@ -62,9 +66,11 @@ export default function SyncBar({ status, intervaloMs, onSalvar }: Props) {
 
       {ultimoSalvo && <span className="text-gray-600">último às {hora(ultimoSalvo)}</span>}
 
-      <span className="text-gray-500">
-        checkpoint automático a cada {intervalo(intervaloMs)} — próximo em {relogio(proximoEm)}
-      </span>
+      {!DEMO && (
+        <span className="text-gray-500">
+          checkpoint automático a cada {intervalo(intervaloMs)} — próximo em {relogio(proximoEm)}
+        </span>
+      )}
 
       {mensagem && <span className={`w-full ${CORES[efetivo]}`}>{mensagem}</span>}
     </div>

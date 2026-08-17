@@ -76,7 +76,13 @@ function drawFormHeader(
   return (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
 }
 
-export function exportTablePdf(table: TableDef, header: HeaderValues, rows: TableRow[]): void {
+/** Monta o documento. Separado de exportTablePdf para que o modo de
+ *  demonstração possa exibi-lo na tela em vez de baixá-lo. */
+export function buildTablePdf(
+  table: TableDef,
+  header: HeaderValues,
+  rows: TableRow[],
+): jsPDF {
   const doc = new jsPDF({ orientation: table.orientation, unit: 'mm', format: 'a4' });
   const usableWidth = doc.internal.pageSize.getWidth() - 2 * MARGIN;
 
@@ -134,5 +140,9 @@ export function exportTablePdf(table: TableDef, header: HeaderValues, rows: Tabl
   });
 
   drawFooters(doc);
-  doc.save(table.fileName);
+  return doc;
+}
+
+export function exportTablePdf(table: TableDef, header: HeaderValues, rows: TableRow[]): void {
+  buildTablePdf(table, header, rows).save(table.fileName);
 }

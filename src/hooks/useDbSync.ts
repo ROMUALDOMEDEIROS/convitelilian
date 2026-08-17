@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, saveSnapshot, type SaveOrigin } from '../lib/api';
+import { DEMO } from '../lib/demo';
 import { todayISO } from '../lib/header';
 import { hasContent } from '../lib/storage';
 import type { HeaderValues, Row, TableDef } from '../schema';
@@ -13,7 +14,7 @@ export const AUTO_INTERVAL_MS = Number(
 /** De quanto em quanto tempo uma gravação que falhou é tentada de novo. */
 const RETRY_MS = Math.min(60_000, AUTO_INTERVAL_MS);
 
-export type SyncState = 'nunca' | 'salvando' | 'salvo' | 'pendente' | 'erro';
+export type SyncState = 'nunca' | 'salvando' | 'salvo' | 'pendente' | 'erro' | 'demo';
 
 export interface SyncStatus {
   estado: SyncState;
@@ -42,7 +43,7 @@ interface Snapshot {
  */
 export function useDbSync(table: TableDef, header: HeaderValues, rows: Row[]) {
   const [status, setStatus] = useState<SyncStatus>({
-    estado: 'nunca',
+    estado: DEMO ? 'demo' : 'nunca',
     ultimoSalvo: null,
     mensagem: null,
     pendente: false,
@@ -67,14 +68,14 @@ export function useDbSync(table: TableDef, header: HeaderValues, rows: Row[]) {
   // React aborte o re-render mesmo se o efeito for reexecutado.
   useEffect(() => {
     snapshotRef.current = { dia, header, rows };
-    const pendente = !vazio && savedSignatureRef.current !== signature;
+    const pendente = !DEMO && !vazio && savedSignatureRef.current !== signature;
     setStatus((current) => (current.pendente === pendente ? current : { ...current, pendente }));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- signature resume dia+header+rows
   }, [signature]);
 
   const executar = useCallback(
     async (origem: SaveOrigin): Promise<boolean> => {
-      if (inFlightRef.current) return false;
+      if (DEMO || inFlightRef.current) return false;
 
       const snapshot = snapshotRef.current;
       const assinatura = JSON.stringify(snapshot);
@@ -137,6 +138,7 @@ export function useDbSync(table: TableDef, header: HeaderValues, rows: Row[]) {
 
   // Checkpoint automático + contagem regressiva na tela.
   useEffect(() => {
+    if (DEMO) return;
     const tick = setInterval(() => {
       const restante = Math.max(0, Math.round((deadlineRef.current - Date.now()) / 1000));
       setStatus((current) =>
@@ -152,6 +154,7 @@ export function useDbSync(table: TableDef, header: HeaderValues, rows: Row[]) {
 
   // Reenvio do que ficou pendente, e tentativa imediata quando a rede volta.
   useEffect(() => {
+    if (DEMO) return;
     const retry = setInterval(() => {
       if (!inFlightRef.current && savedSignatureRef.current !== JSON.stringify(snapshotRef.current)) {
         void executar('automatico');

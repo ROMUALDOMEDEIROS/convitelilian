@@ -4,7 +4,7 @@ import { ImportError, importFile, type ImportReport } from '../lib/import';
 import { normalizeCell } from '../lib/normalize';
 import { emptyRow, toTableRows, type TableRow } from '../lib/rows';
 import { clearTable, loadTable, saveTable } from '../lib/storage';
-import type { HeaderValues, TableDef } from '../schema';
+import type { HeaderValues, Row, TableDef } from '../schema';
 
 export interface TableState {
   header: HeaderValues;
@@ -21,6 +21,7 @@ export interface TableActions {
   editCell: (rowId: string, columnKey: string, value: string) => void;
   commitCell: (rowId: string, columnKey: string) => void;
   addRow: () => void;
+  loadExample: (rows: Row[]) => void;
   deleteRow: (rowId: string) => void;
   clearAll: () => void;
 }
@@ -117,6 +118,11 @@ export function useTableState(table: TableDef): [TableState, TableActions] {
     setState((current) => ({ ...current, rows: [...current.rows, emptyRow(table.columns)] }));
   }, [table]);
 
+  /** Usada apenas pelo botão de exemplo do modo demonstração. */
+  const loadExample = useCallback((rows: Row[]) => {
+    setState((current) => ({ ...current, rows: toTableRows(rows), error: null }));
+  }, []);
+
   const deleteRow = useCallback((rowId: string) => {
     setState((current) => ({ ...current, rows: current.rows.filter((row) => row.id !== rowId) }));
   }, []);
@@ -135,6 +141,6 @@ export function useTableState(table: TableDef): [TableState, TableActions] {
 
   return [
     state,
-    { importFrom, editHeader, editCell, commitCell, addRow, deleteRow, clearAll },
+    { importFrom, editHeader, editCell, commitCell, addRow, loadExample, deleteRow, clearAll },
   ];
 }
