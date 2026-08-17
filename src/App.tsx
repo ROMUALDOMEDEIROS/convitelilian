@@ -13,19 +13,19 @@ export default function App() {
 
       {DEMO && (
         <div className="aviso-demo">
-          <strong>Versão de demonstração, para avaliar a tela.</strong> Aqui você pode importar
-          uma planilha, digitar, adicionar e excluir linhas e ver os dois PDFs. Duas diferenças
-          em relação à versão instalada na unidade: o botão <strong>Salvar no banco</strong> está
-          desativado, porque o banco de dados fica num servidor da própria unidade; e{' '}
-          <strong>Ver PDF</strong> mostra a folha desenhada na tela, nas medidas reais do A4, em vez
-          de baixar o arquivo — este visualizador não permite downloads nem abrir PDF. Na versão
-          instalada, o mesmo botão gera e baixa o PDF. Nada do que você digitar aqui sai deste
-          navegador.
+          <strong>Versão de demonstração, para avaliar a tela.</strong> Aqui você importa uma
+          planilha, digita, adiciona e exclui linhas e vê como as duas folhas ficam impressas.
+          Duas diferenças em relação à versão instalada na unidade: <strong>Salvar no banco</strong>{' '}
+          está desativado, porque o banco de dados fica num servidor da própria unidade; e{' '}
+          <strong>Ver folha em A4</strong> desenha a folha aqui na tela, nas medidas reais, porque
+          este visualizador não permite baixar nem abrir arquivos PDF. Na versão instalada, esse
+          mesmo botão vira <strong>Exportar PDF</strong> e baixa o arquivo. Nada do que você digitar
+          aqui sai deste navegador.
         </div>
       )}
 
-      <TableCard table={TABELA1} label="Tabela 1" state={state1} actions={actions1} />
-      <TableCard table={TABELA2} label="Tabela 2" state={state2} actions={actions2} />
+      <TableCard table={TABELA1} label="viaturas" state={state1} actions={actions1} />
+      <TableCard table={TABELA2} label="pais / responsáveis" state={state2} actions={actions2} />
     </main>
   );
 }

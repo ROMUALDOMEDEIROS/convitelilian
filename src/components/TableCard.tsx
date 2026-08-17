@@ -13,6 +13,9 @@ import type { TableDef } from '../schema';
 
 interface Props {
   table: TableDef;
+  /** Como esta folha é chamada nos botões. "Tabela 1" e "Tabela 2" não diziam
+   *  nada a quem opera; o nome do arquivo gerado segue sendo tabela1.pdf e
+   *  tabela2.pdf, como pede a especificação. */
   label: string;
   state: TableState;
   actions: TableActions;
@@ -60,7 +63,7 @@ export default function TableCard({ table, label, state, actions }: Props) {
           className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
           onClick={() => inputRef.current?.click()}
         >
-          Importar {label}
+          Importar planilha de {label}
         </button>
         <button
           type="button"
@@ -74,7 +77,7 @@ export default function TableCard({ table, label, state, actions }: Props) {
           className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
           onClick={exportar}
         >
-          {DEMO ? 'Ver PDF' : `Exportar ${label}`}
+          {DEMO ? 'Ver folha em A4' : `Exportar PDF (${table.fileName})`}
         </button>
         {DEMO && (
           <button
