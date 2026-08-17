@@ -108,5 +108,5 @@ npm test
 ```
 
 36 testes cobrindo gravação, sobrescrita do dia, histórico de versões,
-isolamento entre tabelas, acentuação, validação, tentativa de SQL injection e
-CORS.
+isolamento entre tabelas, acentuação, validação, tentativa de SQL injection,
+CORS, e o cadastro compartilhado com reconciliação de conflitos (409).
