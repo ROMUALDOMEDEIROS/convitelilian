@@ -156,6 +156,27 @@ os dois no banco.
 
 ## Para quem cuida da máquina
 
+### Rodar como serviço (sobe sozinho, sem janela aberta) — recomendado
+
+Para a máquina da portaria não depender de ninguém deixar a janela aberta,
+instale o Registro da Guarda como serviço. Ele passa a subir **sozinho toda vez
+que a máquina liga**, em segundo plano.
+
+1. Clique com o botão **direito** em **`INSTALAR-SERVICO.bat`** e escolha
+   **"Executar como administrador"**.
+2. Ele instala, compila (se ainda não), registra o serviço e já o inicia.
+3. Acesse `http://localhost:4000`.
+
+A partir daí, ligou a máquina, o app está no ar — sem clicar em nada. Para
+remover, rode **`DESINSTALAR-SERVICO.bat`** como administrador.
+
+> Por baixo, é uma **Tarefa Agendada do Windows** que sobe o servidor oculto
+> (via `servidor-oculto.vbs`) na inicialização. Não precisa baixar nada além do
+> Node.js. O registro do que o serviço faz fica em `server\servico.log`.
+
+Se preferir não instalar o serviço, o `INICIAR.bat` continua funcionando (com a
+janela aberta).
+
 ### Backup — importante
 
 Os dados ficam em `server/data/`. **Copie os três arquivos juntos**
@@ -223,17 +244,19 @@ as inconsistências de padrão que já existiam: a maioria é `NOME + POSTO`
   tudo, inclusive os nomes dos alunos. Isso foi uma decisão de projeto assumindo
   rede interna fechada. Se a rede não for isolada, restrinja por firewall.
 - **O tráfego não é criptografado** (HTTP puro). Em rede compartilhada, é legível.
-- **O servidor depende de uma janela aberta.** O `INICIAR.bat` já usa a versão
-  otimizada do aplicativo (um servidor só, porta 4000), mas ele roda numa janela
-  de comando. Para uma instalação definitiva que suba sozinha com a máquina, o
-  ideal é transformar esse servidor em **serviço do Windows** (com NSSM, por
-  exemplo) — aí não depende de ninguém deixar a janela aberta.
+- **Pelo `INICIAR.bat`, o servidor depende da janela aberta.** Para a máquina
+  da portaria, prefira instalar como serviço (`INSTALAR-SERVICO.bat`, acima) —
+  aí sobe sozinho na inicialização e não depende de ninguém deixar janela
+  aberta.
 
 ### Estrutura
 
 ```
-INICIAR.bat        inicia tudo com dois cliques (app + banco na porta 4000)
-ATUALIZAR.bat      recompila o app depois de baixar uma versão nova
+INICIAR.bat            inicia tudo com dois cliques (app + banco na porta 4000)
+ATUALIZAR.bat          recompila o app depois de baixar uma versão nova
+INSTALAR-SERVICO.bat   instala como serviço (sobe sozinho ao ligar a máquina)
+DESINSTALAR-SERVICO.bat remove o serviço
+servidor-oculto.vbs    lançador sem janela, usado pelo serviço
 src/               a tela (React + TypeScript)
 server/            o servidor: banco de dados + entrega do app (Node + SQLite)
 dist/              o app compilado (gerado pelo build; não vai para o Git)
