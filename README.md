@@ -1,0 +1,271 @@
+# Registro da Guarda
+
+Substitui a planilha `PLANILHA_DE_REGISTRO.xlsm` por um aplicativo que roda no
+navegador, na rede interna da unidade.
+
+Duas folhas de registro:
+
+- **Controle de Entrada e Saída de Viaturas** — Entrada, Saída, Interna, Externa, Condutor
+- **Controle de Entrada de Pais / Responsáveis** — Hora, Pais/Responsáveis, Aluno, Série/Turma, Destino, Autorizado por
+
+O que ele faz:
+
+- **importa** as planilhas atuais (`.csv`, `.xlsx` e o próprio `.xlsm`), achando
+  as colunas pelo nome — inclusive o cabeçalho de duas alturas da folha de viaturas;
+- **cadastro de viaturas e condutores** já preenchido com as 22 viaturas e os 68
+  condutores da aba `Dados`, editável e com **autopreenchimento** ao digitar;
+- **digita direto na tela**, com adicionar e excluir linha;
+- **data automática**, preenchida com o dia de hoje mas gravada como valor fixo:
+  ela não se reescreve sozinha como o `=HOJE()` da planilha antiga;
+- **gera os dois PDFs** em A4 (viaturas em retrato, pais em paisagem), com
+  cabeçalho repetido em toda página e "Página X de Y";
+- **salva sozinho** no navegador a cada tecla digitada;
+- **grava no banco de dados** da unidade, manualmente ou a cada 20 minutos,
+  com reenvio automático se a rede cair.
+
+---
+
+## Instalar (uma vez só)
+
+### 1. Instalar o Node.js
+
+Baixe em **https://nodejs.org**, opção **LTS**, e instale normalmente
+(next, next, finish). É o motor que roda o programa.
+
+### 2. Baixar esta pasta
+
+Na página do projeto no GitHub: botão verde **Code** → **Download ZIP**.
+Descompacte, por exemplo, em `C:\registro-guarda`.
+
+### 3. Usar
+
+Dê **dois cliques em `INICIAR.bat`**.
+
+Na primeira vez ele instala e prepara tudo (leva alguns minutos e precisa de
+internet **apenas nesta vez**). Depois abre sozinho o navegador em
+**`http://localhost:4000`**.
+
+> **Abre UMA janela preta: SERVIDOR.** Mantenha-a aberta enquanto estiver
+> usando; para encerrar, feche essa janela. O aplicativo e o banco de dados
+> rodam juntos nela.
+
+**Atualizou o programa** (baixou uma versão nova)? Rode o **`ATUALIZAR.bat`**
+uma vez antes de usar — ele recompila o aplicativo.
+
+---
+
+## Uso no dia a dia
+
+1. Dois cliques em `INICIAR.bat` (abre em `http://localhost:4000`).
+2. Preencher **DATA** (já vem com hoje), **CMT. DA GUARDA**, **VIGILANTE** e,
+   na folha de pais, **ALA DE SERVIÇO**.
+3. Clicar em **+ Adicionar linha** e lançar os registros. As horas são aceitas
+   em qualquer formato: digitar `7:5` grava `07:05`; `1:30 PM` grava `13:30`.
+4. Ao fim do turno, **Exportar** gera o PDF para imprimir e arquivar.
+5. **Limpar** encerra o turno e devolve a data para hoje.
+
+### Cadastro de viaturas e condutores
+
+No topo da tela, em **Cadastro de viaturas e condutores**, ficam as duas listas
+que alimentam o autopreenchimento das colunas *Interna*, *Externa*, *Condutor* e
+*Autorizado por*. Já vêm com os nomes da planilha antiga.
+
+- **Acrescentar**: digite e tecle Enter. Nome repetido é recusado, comparando
+  sem acento e sem maiúsculas — `ao 42` não entra se `AO 42` já existe.
+- **Editar**: clique no nome e corrija. A ordem alfabética é refeita ao sair.
+- **Excluir**: botão `✕` da linha.
+- **Importar lista**: aceita `.csv`, `.txt`, `.xlsx` e `.xlsm`. Procura a coluna
+  `VTR` ou `CONDUTOR`; um arquivo com um nome por linha também serve. Jogando o
+  `.xlsm` antigo, ele acha a aba `Dados` sozinho — e o aviso diz de qual aba e
+  coluna leu, para você conferir.
+- **Restaurar original**: volta aos nomes da planilha antiga.
+
+Ao digitar numa célula dessas colunas, aparece a lista filtrada. **Acento não
+atrapalha**: `aragao` acha `ARAGÃO SGT`, `ademesio` acha `ADEMÉSIO SGT`. Também
+dá para procurar por parte do nome — `sgt` traz todos os sargentos. Use as setas
+e Enter, ou clique.
+
+> **A lista sugere, não obriga.** Um condutor que não está cadastrado pode ser
+> digitado normalmente. Nada é bloqueado.
+
+**Cadastrar direto da folha, sem subir ao painel:** ao digitar na coluna
+*Interna*, *Externa*, *Condutor* ou *Autorizado por* um nome que ainda não
+existe, o menu mostra **“+ Acrescentar «nome» ao cadastro”**. Um clique (ou
+seta até ele e Enter) e o nome entra na lista, já disponível nas próximas
+linhas. É a forma mais rápida de incluir uma viatura ou condutor novo — não
+precisa de arquivo nem de abrir o painel.
+
+**As listas ficam no banco da unidade, iguais em todas as máquinas.** O cabeçalho
+do painel mostra o estado: `● gravado no banco da unidade` quando está tudo
+sincronizado. Se o banco estiver fora do ar, você continua editando e as
+mudanças sobem sozinhas quando ele voltar.
+
+Se duas máquinas editarem o cadastro ao mesmo tempo, **as duas versões são
+unidas** — ninguém perde o que acrescentou.
+
+### A barra de sincronização
+
+Cada folha tem uma barra cinza no topo:
+
+| O que aparece | O que significa |
+|---|---|
+| `○ ainda não gravado no banco` | Nada foi enviado ainda nesta folha |
+| `● aguardando envio ao banco` | Há lançamento novo que o banco ainda não recebeu |
+| `○ gravado no banco` | Tudo que está na tela já está no banco |
+| `● falha ao gravar` | O envio falhou — a mensagem ao lado diz o motivo |
+
+O botão **Salvar no banco** envia na hora. Sozinho, o programa envia **a cada
+20 minutos**, e o relógio ao lado mostra quanto falta para o próximo.
+
+> **Se a rede cair, nada é perdido.** O que está na tela continua salvo neste
+> navegador, e o envio é repetido automaticamente quando a rede voltar.
+
+---
+
+## Perguntas comuns
+
+**Fechei a janela SERVIDOR sem querer. E agora?**
+O aplicativo para de responder. É só rodar o `INICIAR.bat` de novo — nada é
+perdido, os dados estão no banco. Enquanto o servidor está no ar, se você só
+fechar o navegador, reabra em `http://localhost:4000` que o turno continua lá.
+
+**Aparece uma data que não é a de hoje. Está errado?**
+Não — é proposital. Significa que essa folha é de outro dia (você reabriu um
+turno anterior ou importou um arquivo antigo). Abaixo do campo aparece
+"não é a data de hoje". Se quer começar um turno novo, clique em **Limpar**.
+
+**Os nomes dos condutores mudaram. Onde eu altero?**
+Em **Cadastro de viaturas e condutores**, no topo. Acrescente, corrija ou exclua
+ali, e o autopreenchimento das folhas passa a usar a lista nova na hora.
+
+**Posso usar em dois computadores ao mesmo tempo?**
+Sim, mas com um cuidado: **cada máquina tem a sua própria cópia na tela**.
+Quem salvar por último sobrescreve o registro daquele dia no banco. Para dois
+postos lançando ao mesmo tempo, fale comigo — precisa de um tratamento
+específico.
+
+**Preciso de internet?**
+Só na primeira instalação. Depois, apenas a rede interna da unidade.
+
+**Onde ficam os dados?**
+No arquivo `server/data/registro.sqlite`, na própria máquina. Nada vai para a
+internet. Os registros dos turnos e o cadastro de viaturas e condutores ficam
+os dois no banco.
+
+---
+
+## Para quem cuida da máquina
+
+### Rodar como serviço (sobe sozinho, sem janela aberta) — recomendado
+
+Para a máquina da portaria não depender de ninguém deixar a janela aberta,
+instale o Registro da Guarda como serviço. Ele passa a subir **sozinho toda vez
+que a máquina liga**, em segundo plano.
+
+1. Clique com o botão **direito** em **`INSTALAR-SERVICO.bat`** e escolha
+   **"Executar como administrador"**.
+2. Ele instala, compila (se ainda não), registra o serviço e já o inicia.
+3. Acesse `http://localhost:4000`.
+
+A partir daí, ligou a máquina, o app está no ar — sem clicar em nada. Para
+remover, rode **`DESINSTALAR-SERVICO.bat`** como administrador.
+
+> Por baixo, é uma **Tarefa Agendada do Windows** que sobe o servidor oculto
+> (via `servidor-oculto.vbs`) na inicialização. Não precisa baixar nada além do
+> Node.js. O registro do que o serviço faz fica em `server\servico.log`.
+
+Se preferir não instalar o serviço, o `INICIAR.bat` continua funcionando (com a
+janela aberta).
+
+### Backup — importante
+
+Os dados ficam em `server/data/`. **Copie os três arquivos juntos**
+(`registro.sqlite`, `registro.sqlite-wal`, `registro.sqlite-shm`), ou pare o
+servidor antes de copiar apenas o `.sqlite`.
+
+Copiar só o `.sqlite` com o servidor ligado traz um banco quase vazio: as
+gravações recentes ainda estão no arquivo `-wal`.
+
+### Rodar em rede, com outras máquinas da portaria
+
+O aplicativo e o banco rodam juntos numa porta só. **Numa máquina** (a que
+guarda o banco), rode o `INICIAR.bat` normalmente. As **outras máquinas** da
+rede interna acessam pelo navegador, sem instalar nada:
+
+```
+http://IP-DA-MAQUINA-DO-BANCO:4000
+```
+
+(descubra o IP com `ipconfig` na máquina do banco). Todas veem os mesmos dados,
+porque falam com o mesmo servidor.
+
+Detalhes de configuração, rotas da API e recuperação de versões antigas estão em
+[`server/README.md`](server/README.md).
+
+### Cadastro compartilhado, e reconciliação de conflitos
+
+O cadastro de viaturas e condutores é uma linha única na tabela `listas`, com
+controle otimista de versão: quem grava informa em que versão se baseou, e o
+servidor recusa com `409` se outra máquina gravou antes. A tela então funde as
+duas versões (união, sem duplicar) e regrava. Cada gravação também é anexada em
+`listas_version`, então nenhuma alteração se perde no histórico.
+
+### Trocar o brasão pelo oficial
+
+A tela usa um emblema desenhado como marcador. Para colocar o brasão oficial,
+**basta soltar o arquivo na pasta — sem mexer em código:**
+
+1. Salve a imagem do brasão em `src/assets/` com o nome **`brasao.png`**
+   (também aceita `.jpg`, `.jpeg`, `.webp` ou `.svg`). PNG com fundo
+   transparente fica melhor.
+2. Pare e reinicie o app (feche e abra o `INICIAR.bat`).
+
+Pronto: o cabeçalho passa a mostrar o brasão de verdade. O app detecta o
+arquivo sozinho; enquanto ele não existir, mostra o emblema desenhado. Há um
+`LEIA-ME.txt` dentro de `src/assets/` com essa mesma instrução.
+
+As cores da interface saíram do próprio brasão (vermelho heráldico `#a81e22`,
+dourado `#c8a13a`, verde louro `#2e7d32`) e ficam em `src/index.css`, no bloco
+`:root`. Mudou o brasão e quer ajustar o tom do vermelho? É lá.
+
+### Sobre o cadastro copiado da planilha
+
+As listas iniciais saíram da aba `Dados` do `.xlsm`, com os espaços sobrando
+removidos (`AGATANGELO  PTTC`, `SGT JARDELINE `, `ULHOA TC `, `MAJ DOUGLAS `) e
+a ordem alfabética refeita. **Nenhum nome foi reescrito.** Ficaram como estavam
+as inconsistências de padrão que já existiam: a maioria é `NOME + POSTO`
+(`MATIAS SGT`), mas há `SGT JARDELINE` e `MAJ DOUGLAS` invertidos,
+`GEOVANE MAJ PTTC` com dois postos, e `CARMONA`, `ELIEZER`, `STEVES` e
+`MATIOLLI` sem posto. Corrija pela tela se quiser padronizar.
+
+### Limitações que você deve conhecer
+
+- **Não há autenticação.** Qualquer máquina que alcance a porta 4000 lê e grava
+  tudo, inclusive os nomes dos alunos. Isso foi uma decisão de projeto assumindo
+  rede interna fechada. Se a rede não for isolada, restrinja por firewall.
+- **O tráfego não é criptografado** (HTTP puro). Em rede compartilhada, é legível.
+- **Pelo `INICIAR.bat`, o servidor depende da janela aberta.** Para a máquina
+  da portaria, prefira instalar como serviço (`INSTALAR-SERVICO.bat`, acima) —
+  aí sobe sozinho na inicialização e não depende de ninguém deixar janela
+  aberta.
+
+### Estrutura
+
+```
+INICIAR.bat            inicia tudo com dois cliques (app + banco na porta 4000)
+ATUALIZAR.bat          recompila o app depois de baixar uma versão nova
+INSTALAR-SERVICO.bat   instala como serviço (sobe sozinho ao ligar a máquina)
+DESINSTALAR-SERVICO.bat remove o serviço
+servidor-oculto.vbs    lançador sem janela, usado pelo serviço
+src/               a tela (React + TypeScript)
+server/            o servidor: banco de dados + entrega do app (Node + SQLite)
+dist/              o app compilado (gerado pelo build; não vai para o Git)
+fixtures/          arquivos de exemplo para testar a importação
+```
+
+### Testes
+
+```bash
+npm --prefix server test    # 24 testes do banco e da API
+npm run build               # confere que a tela compila
+```

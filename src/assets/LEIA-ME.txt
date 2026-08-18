@@ -1,0 +1,9 @@
+Coloque aqui o brasão oficial da unidade, com o nome:
+
+    brasao.png     (ou brasao.jpg, brasao.jpeg, brasao.webp, brasao.svg)
+
+Recomendado: PNG com fundo transparente.
+
+Assim que o arquivo estiver nesta pasta, o cabeçalho do aplicativo passa a
+usar o brasão de verdade automaticamente — não precisa mexer em código nenhum.
+Enquanto não houver arquivo, o app mostra um emblema desenhado como marcador.
