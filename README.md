@@ -29,8 +29,15 @@ O que ele faz:
 
 ### 1. Instalar o Node.js
 
-Baixe em **https://nodejs.org**, opção **LTS**, e instale normalmente
-(next, next, finish). É o motor que roda o programa.
+O programa precisa do **Node.js** (o motor que o faz rodar). Dois jeitos:
+
+- **Com o instalador** (`.msi`) — o comum, mas **pede senha de administrador**.
+- **Sem administrador** (recomendado se você não tem a senha): baixe em
+  **https://nodejs.org** o arquivo **"Windows Binary (.zip)" 64-bit** (é um
+  `.zip`, não o instalador). Descompacte em **`%USERPROFILE%\node`**
+  (ex.: `C:\Users\seu-usuario\node`) **ou** numa pasta `node` dentro da pasta
+  do programa. O `INICIAR.bat` encontra o Node aí sozinho — não precisa instalar
+  nem configurar nada.
 
 ### 2. Baixar esta pasta
 

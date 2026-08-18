@@ -8,13 +8,23 @@ echo   REGISTRO DA GUARDA
 echo ============================================================
 echo.
 
-rem --- 1. O Node.js esta instalado? -------------------------------------
+rem --- 1. Localiza o Node.js ------------------------------------------
+rem Procura primeiro um Node PORTATIL (sem instalacao, sem administrador),
+rem depois o Node instalado no sistema. Assim funciona nos dois casos.
+call :ACHAR_NODE
+
 where node > nul 2>&1
 if errorlevel 1 (
-  echo [ERRO] O Node.js nao esta instalado nesta maquina.
+  echo [ERRO] Nao encontrei o Node.js nesta maquina.
   echo.
-  echo   Baixe em https://nodejs.org  ^(versao LTS^), instale
-  echo   e depois execute este arquivo novamente.
+  echo   Opcao SEM administrador ^(recomendada^):
+  echo     1^) Baixe em https://nodejs.org o arquivo "Windows Binary (.zip)" 64-bit
+  echo     2^) Descompacte em uma destas pastas:
+  echo          %USERPROFILE%\node
+  echo          %~dp0node
+  echo     3^) Rode este INICIAR.bat de novo.
+  echo.
+  echo   Ou peca ao setor de informatica para instalar o Node.js ^(LTS^).
   echo.
   pause
   exit /b 1
@@ -24,7 +34,7 @@ for /f "delims=" %%v in ('node -v') do set NODEVER=%%v
 echo Node.js %NODEVER% encontrado.
 echo.
 
-rem --- 2. Primeira vez? Instala as bibliotecas -------------------------
+rem --- 2. Primeira vez? Instala as bibliotecas -----------------------
 if not exist "node_modules" (
   echo Primeira execucao: instalando o aplicativo. Isso leva alguns minutos...
   call npm install
@@ -36,19 +46,18 @@ if not exist "server\node_modules" (
   if errorlevel 1 goto erro_install
 )
 
-rem --- 3. Compila o aplicativo se ainda nao houver versao pronta -------
+rem --- 3. Compila o aplicativo se ainda nao houver versao pronta -----
 if not exist "dist\index.html" (
   echo Preparando o aplicativo ^(so na primeira vez, ou apos atualizar^)...
   call npm run build
   if errorlevel 1 goto erro_build
 )
 
-rem --- 4. Sobe UM servidor: aplicativo + banco na mesma porta ----------
+rem --- 4. Sobe UM servidor: aplicativo + banco na mesma porta --------
 echo.
 echo Ligando o Registro da Guarda...
 start "Registro da Guarda - SERVIDOR" cmd /k "npm --prefix server start"
 
-rem espera o servidor responder antes de abrir o navegador
 echo Aguardando o servidor responder...
 set TENTATIVAS=0
 :espera
@@ -92,3 +101,22 @@ echo [ERRO] Falha ao preparar o aplicativo. Veja as mensagens acima.
 echo.
 pause
 exit /b 1
+
+rem ===================================================================
+rem  Coloca a pasta do Node PORTATIL no PATH desta sessao, se existir.
+rem  Aceita a pasta direta (node\node.exe) ou a subpasta versionada que
+rem  o .zip do Node cria (node-vXX.XX.X-win-x64\node.exe).
+rem ===================================================================
+:ACHAR_NODE
+set "NODE_DIR="
+for %%D in ("%~dp0node" "%USERPROFILE%\node" "%USERPROFILE%\Downloads\node") do (
+  if exist "%%~D\node.exe" set "NODE_DIR=%%~D"
+)
+if not defined NODE_DIR (
+  for /d %%D in ("%~dp0node\node-v*-win-x64" "%USERPROFILE%\node\node-v*-win-x64" "%USERPROFILE%\Downloads\node-v*-win-x64") do (
+    if exist "%%~D\node.exe" set "NODE_DIR=%%~D"
+  )
+)
+rem A janela do servidor aberta com "start" herda este PATH automaticamente.
+if defined NODE_DIR set "PATH=%NODE_DIR%;%PATH%"
+goto :eof
