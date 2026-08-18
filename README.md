@@ -187,20 +187,17 @@ duas versões (união, sem duplicar) e regrava. Cada gravação também é anexa
 
 ### Trocar o brasão pelo oficial
 
-A tela usa um emblema estilizado nas cores do brasão da unidade (vermelho,
-dourado e verde), como marcador. Para colocar o brasão oficial:
+A tela usa um emblema desenhado como marcador. Para colocar o brasão oficial,
+**basta soltar o arquivo na pasta — sem mexer em código:**
 
-1. Salve a imagem em `src/assets/brasao.png` (fundo transparente, de preferência).
-2. Em `src/components/AppHeader.tsx`, troque `<Brasao size={54} />` por uma
-   imagem:
+1. Salve a imagem do brasão em `src/assets/` com o nome **`brasao.png`**
+   (também aceita `.jpg`, `.jpeg`, `.webp` ou `.svg`). PNG com fundo
+   transparente fica melhor.
+2. Pare e reinicie o app (feche e abra o `INICIAR.bat`).
 
-   ```tsx
-   import brasao from '../assets/brasao.png';
-   // ...
-   <img src={brasao} alt="Brasão da unidade" width={54} height={62} />
-   ```
-
-3. O resto do layout — cores, cabeçalho, cartões — continua igual.
+Pronto: o cabeçalho passa a mostrar o brasão de verdade. O app detecta o
+arquivo sozinho; enquanto ele não existir, mostra o emblema desenhado. Há um
+`LEIA-ME.txt` dentro de `src/assets/` com essa mesma instrução.
 
 As cores da interface saíram do próprio brasão (vermelho heráldico `#a81e22`,
 dourado `#c8a13a`, verde louro `#2e7d32`) e ficam em `src/index.css`, no bloco

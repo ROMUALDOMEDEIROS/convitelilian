@@ -1,6 +1,20 @@
 import Brasao from './Brasao';
 
-/** Cabeçalho de identidade: emblema + título, faixa vermelha com fio dourado. */
+/**
+ * Procura um brasão que o usuário tenha colocado em `src/assets/brasao.*`.
+ * Havendo arquivo, o cabeçalho o usa automaticamente; senão, cai no emblema
+ * desenhado. Assim, para pôr o brasão oficial, basta soltar o arquivo na pasta
+ * — nenhuma edição de código. Ver `src/assets/LEIA-ME.txt`.
+ */
+const arquivosBrasao = import.meta.glob('../assets/brasao.{png,jpg,jpeg,webp,svg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const brasaoUrl = Object.values(arquivosBrasao)[0];
+
+/** Cabeçalho de identidade: brasão + título, faixa vermelha com fio dourado. */
 export default function AppHeader() {
   return (
     <header className="mb-6">
@@ -17,7 +31,15 @@ export default function AppHeader() {
           className="flex shrink-0 items-center justify-center rounded-lg"
           style={{ background: 'var(--surface)', border: '1px solid var(--line)', padding: '6px' }}
         >
-          <Brasao size={54} />
+          {brasaoUrl ? (
+            <img
+              src={brasaoUrl}
+              alt="Brasão da unidade"
+              className="block h-[62px] w-auto object-contain"
+            />
+          ) : (
+            <Brasao size={54} />
+          )}
         </div>
 
         <div className="min-w-0">
