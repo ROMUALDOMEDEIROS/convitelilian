@@ -21,7 +21,7 @@ export default function FormHeader({ table, header, actions }: Props) {
             <input
               type={isDate ? 'date' : 'text'}
               value={value}
-              className="border border-gray-300 px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              className="border border-gray-300 px-2 py-1 text-sm outline-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c8a13a]"
               onChange={(event) => actions.editHeader(field.key, event.target.value)}
             />
             {isDate && (

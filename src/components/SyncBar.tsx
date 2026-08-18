@@ -49,10 +49,10 @@ export default function SyncBar({ status, intervaloMs, onSalvar }: Props) {
   const efetivo = pendente && estado === 'salvo' ? 'pendente' : estado;
 
   return (
-    <div className="mb-2 flex flex-wrap items-center gap-2 border border-gray-300 bg-gray-50 px-3 py-2 text-xs">
+    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-[#e4ddd1] bg-[#faf8f3] px-3 py-2 text-xs">
       <button
         type="button"
-        className="border border-gray-400 bg-white px-3 py-1.5 text-sm hover:bg-gray-100 disabled:opacity-50"
+        className="rg-btn rg-btn-primary rg-btn-xs"
         onClick={onSalvar}
         disabled={DEMO || estado === 'salvando'}
         title={DEMO ? 'Disponível na versão instalada na unidade' : undefined}

@@ -14,7 +14,7 @@ interface Props {
 }
 
 function campoClasse(column: { type: string }): string {
-  return `w-full min-w-[6rem] bg-transparent px-2 py-1.5 outline-none focus:bg-yellow-50 focus:ring-2 focus:ring-inset focus:ring-blue-500 ${
+  return `w-full min-w-[6rem] bg-transparent px-2 py-1.5 outline-none focus:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c8a13a] ${
     isNumericColumn(column as never) ? 'text-right' : 'text-left'
   }`;
 }
@@ -29,15 +29,15 @@ export default function DataTable({ table, rows, actions, listas, onCadastrar }:
   }
 
   return (
-    <div className="overflow-x-auto border border-gray-300">
+    <div className="overflow-x-auto rg-card">
       <table className="w-full border-collapse text-sm">
         <thead>
-          <tr className="bg-black text-white">
+          <tr className="rg-thead">
             {table.columns.map((column) => (
               <th
                 key={column.key}
                 scope="col"
-                className="border border-gray-600 px-2 py-1.5 text-center font-bold whitespace-nowrap"
+                className="border border-white/25 px-2 py-1.5 text-center font-bold whitespace-nowrap"
               >
                 {column.label}
               </th>
@@ -45,7 +45,7 @@ export default function DataTable({ table, rows, actions, listas, onCadastrar }:
             <th
               scope="col"
               aria-label="Excluir"
-              className="w-12 border border-gray-600 px-2 py-1.5"
+              className="w-12 border border-white/25 px-2 py-1.5"
             />
           </tr>
         </thead>

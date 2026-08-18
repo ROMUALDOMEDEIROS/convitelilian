@@ -1,3 +1,4 @@
+import AppHeader from './components/AppHeader';
 import ListsPanel from './components/ListsPanel';
 import TableCard from './components/TableCard';
 import { useLists } from './hooks/useLists';
@@ -24,7 +25,7 @@ export default function App() {
 
   return (
     <main className="mx-auto max-w-6xl p-4 sm:p-6">
-      <h1 className="mb-4 text-xl font-bold">Registro da Guarda</h1>
+      <AppHeader />
 
       {DEMO && (
         <div className="aviso-demo">

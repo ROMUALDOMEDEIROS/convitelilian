@@ -163,7 +163,7 @@ export default function AutoCompleteCell({
       {aberto && linhas.length > 0 && caixa && (
         <ul
           role="listbox"
-          className="fixed z-50 max-h-56 overflow-y-auto border border-gray-400 bg-white shadow-lg"
+          className="fixed z-50 max-h-56 overflow-y-auto rounded-md border border-[#d3c9b8] bg-white shadow-lg"
           style={{ left: caixa.left, top: caixa.top, width: Math.max(caixa.width, 200) }}
         >
           {linhas.map((linha, i) => (
@@ -174,9 +174,9 @@ export default function AutoCompleteCell({
                 aria-selected={i === destacado}
                 className={`block w-full px-2 py-1.5 text-left text-sm ${
                   i === destacado
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-[#a81e22] text-white'
                     : linha.tipo === 'cadastrar'
-                      ? 'text-blue-700 hover:bg-blue-50'
+                      ? 'text-[#a81e22] hover:bg-[#fbecec]'
                       : 'hover:bg-gray-100'
                 } ${linha.tipo === 'cadastrar' ? 'border-t border-gray-200' : ''}`}
                 onMouseDown={(e) => e.preventDefault()}
@@ -197,7 +197,7 @@ export default function AutoCompleteCell({
       {cadastrado && (
         <span
           role="status"
-          className="pointer-events-none fixed z-50 mt-0.5 bg-green-700 px-2 py-0.5 text-xs text-white shadow"
+          className="pointer-events-none fixed z-50 mt-0.5 rounded bg-[#2e7d32] px-2 py-0.5 text-xs text-white shadow"
           style={caixa ? { left: caixa.left, top: caixa.top } : undefined}
         >
           ✓ “{cadastrado}” adicionado ao cadastro

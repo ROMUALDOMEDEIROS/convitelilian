@@ -24,7 +24,7 @@ export default function ConfirmarBotao({ label, pergunta, confirmar, onConfirm }
     return (
       <button
         type="button"
-        className="border border-gray-400 px-3 py-1.5 text-sm text-red-700 hover:bg-red-50"
+        className="rg-btn rg-btn-danger"
         onClick={() => setPerguntando(true)}
       >
         {label}
@@ -37,7 +37,7 @@ export default function ConfirmarBotao({ label, pergunta, confirmar, onConfirm }
       <span className="text-xs text-red-900">{pergunta}</span>
       <button
         type="button"
-        className="border border-red-700 bg-red-700 px-2 py-1 text-xs font-bold text-white hover:bg-red-800"
+        className="rg-btn rg-btn-xs rg-btn-primary font-bold"
         onClick={() => {
           setPerguntando(false);
           onConfirm();
@@ -47,7 +47,7 @@ export default function ConfirmarBotao({ label, pergunta, confirmar, onConfirm }
       </button>
       <button
         type="button"
-        className="border border-gray-400 bg-white px-2 py-1 text-xs hover:bg-gray-100"
+        className="rg-btn rg-btn-xs"
         onClick={() => setPerguntando(false)}
       >
         Cancelar

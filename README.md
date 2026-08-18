@@ -185,6 +185,27 @@ servidor recusa com `409` se outra máquina gravou antes. A tela então funde as
 duas versões (união, sem duplicar) e regrava. Cada gravação também é anexada em
 `listas_version`, então nenhuma alteração se perde no histórico.
 
+### Trocar o brasão pelo oficial
+
+A tela usa um emblema estilizado nas cores do brasão da unidade (vermelho,
+dourado e verde), como marcador. Para colocar o brasão oficial:
+
+1. Salve a imagem em `src/assets/brasao.png` (fundo transparente, de preferência).
+2. Em `src/components/AppHeader.tsx`, troque `<Brasao size={54} />` por uma
+   imagem:
+
+   ```tsx
+   import brasao from '../assets/brasao.png';
+   // ...
+   <img src={brasao} alt="Brasão da unidade" width={54} height={62} />
+   ```
+
+3. O resto do layout — cores, cabeçalho, cartões — continua igual.
+
+As cores da interface saíram do próprio brasão (vermelho heráldico `#a81e22`,
+dourado `#c8a13a`, verde louro `#2e7d32`) e ficam em `src/index.css`, no bloco
+`:root`. Mudou o brasão e quer ajustar o tom do vermelho? É lá.
+
 ### Sobre o cadastro copiado da planilha
 
 As listas iniciais saíram da aba `Dados` do `.xlsm`, com os espaços sobrando

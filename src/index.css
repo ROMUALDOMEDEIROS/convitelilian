@@ -1,3 +1,109 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ------------------------------------------------------------------ *
+ * Paleta extraída do brasão da unidade: vermelho heráldico, dourado,
+ * verde louro, creme do livro, tinta escura. O app imita uma folha de
+ * registro impressa, então assume de propósito um único visual claro —
+ * mas pinta tudo explicitamente, para valer em qualquer tema do host.
+ * ------------------------------------------------------------------ */
+:root {
+  --red-900: #6f1417;
+  --red-800: #8a181c;
+  --red-700: #a81e22; /* vermelho de marca */
+  --red-600: #c22a2e;
+  --red-50: #fbecec;
+  --gold: #c8a13a; /* acento, usado com parcimônia */
+  --gold-soft: #e7d9ac;
+  --green-700: #2e7d32; /* louro / estado "salvo" */
+  --ink: #211d1a; /* texto */
+  --muted: #6b6259; /* texto secundário */
+  --paper: #f6f3ee; /* fundo da página, viés quente */
+  --paper-2: #efeae1; /* hover suave */
+  --surface: #ffffff;
+  --line: #e4ddd1; /* borda quente */
+  --line-strong: #d3c9b8;
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer components {
+  /* Botões ---------------------------------------------------------- */
+  .rg-btn {
+    @apply inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .rg-btn:hover {
+    background: var(--paper-2);
+  }
+  .rg-btn:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+  }
+  .rg-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .rg-btn-primary {
+    border-color: transparent;
+    background: var(--red-700);
+    color: #fff;
+  }
+  .rg-btn-primary:hover:not(:disabled) {
+    background: var(--red-800);
+  }
+  .rg-btn-danger {
+    color: var(--red-700);
+  }
+  .rg-btn-danger:hover {
+    background: var(--red-50);
+  }
+  .rg-btn-xs {
+    @apply gap-1 rounded px-2 py-1 text-xs;
+  }
+
+  /* Cartões e cabeçalhos ------------------------------------------- */
+  .rg-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow:
+      0 1px 2px rgba(33, 29, 26, 0.04),
+      0 2px 8px rgba(33, 29, 26, 0.05);
+  }
+  .rg-thead {
+    background: var(--red-700);
+    color: #fff;
+  }
+  .rg-panel-toggle {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+  .rg-panel-toggle:hover {
+    background: var(--paper-2);
+  }
+
+  /* Campos ---------------------------------------------------------- */
+  .rg-field {
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  .rg-field:focus {
+    outline: 2px solid var(--gold);
+    outline-offset: -1px;
+  }
+}

@@ -40,10 +40,12 @@ export default function TableCard({ table, label, listas, onCadastrar, state, ac
   }
 
   return (
-    <section className="mb-10">
-      <header className="mb-2">
-        <h2 className="text-base font-bold">{table.title}</h2>
-        <p className="text-xs text-gray-500">
+    <section className="rg-card mb-6 p-4 sm:p-5">
+      <header className="mb-3">
+        <h2 className="text-base font-bold" style={{ color: 'var(--red-800)' }}>
+          {table.title}
+        </h2>
+        <p className="text-xs" style={{ color: 'var(--muted)' }}>
           {table.columns.map((c) => c.label).join(' · ')}
         </p>
       </header>
@@ -63,21 +65,21 @@ export default function TableCard({ table, label, listas, onCadastrar, state, ac
         />
         <button
           type="button"
-          className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
+          className="rg-btn"
           onClick={() => inputRef.current?.click()}
         >
           Importar planilha de {label}
         </button>
         <button
           type="button"
-          className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
+          className="rg-btn"
           onClick={actions.addRow}
         >
           + Adicionar linha
         </button>
         <button
           type="button"
-          className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
+          className="rg-btn rg-btn-primary"
           onClick={exportar}
         >
           {DEMO ? 'Ver folha em A4' : `Exportar PDF (${table.fileName})`}
@@ -85,7 +87,7 @@ export default function TableCard({ table, label, listas, onCadastrar, state, ac
         {DEMO && (
           <button
             type="button"
-            className="border border-gray-400 px-3 py-1.5 text-sm hover:bg-gray-100"
+            className="rg-btn"
             onClick={() => actions.loadExample(EXEMPLOS[table.id])}
           >
             Carregar exemplo

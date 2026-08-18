@@ -55,9 +55,9 @@ function Coluna({
     .filter(({ item }) => item.toLowerCase().includes(filtro.trim().toLowerCase()));
 
   return (
-    <section className="flex min-w-0 flex-col border border-gray-300">
-      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-300 bg-gray-100 px-3 py-2">
-        <h3 className="text-sm font-bold">
+    <section className="rg-card flex min-w-0 flex-col overflow-hidden">
+      <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4ddd1] bg-[#f3efe6] px-3 py-2">
+        <h3 className="text-sm font-bold" style={{ color: 'var(--red-800)' }}>
           {def.titulo} <span className="font-normal text-gray-500">({itens.length})</span>
         </h3>
         <div className="flex flex-wrap items-center gap-1">
@@ -74,14 +74,14 @@ function Coluna({
           />
           <button
             type="button"
-            className="border border-gray-400 bg-white px-2 py-1 text-xs hover:bg-gray-200"
+            className="rg-btn rg-btn-xs"
             onClick={() => arquivoRef.current?.click()}
           >
             Importar lista
           </button>
           <button
             type="button"
-            className="border border-gray-400 bg-white px-2 py-1 text-xs hover:bg-gray-200"
+            className="rg-btn rg-btn-xs"
             title="Volta aos nomes que estavam na planilha original"
             onClick={() => actions.restaurar(def.key)}
           >
@@ -102,7 +102,7 @@ function Coluna({
           value={novo}
           placeholder={def.exemplo}
           aria-label={`Novo nome em ${def.titulo}`}
-          className="min-w-0 flex-1 border border-gray-300 px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+          className="min-w-0 flex-1 border border-gray-300 px-2 py-1 text-sm outline-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c8a13a]"
           onChange={(e) => {
             setNovo(e.target.value);
             setRecusa(null);
@@ -116,7 +116,7 @@ function Coluna({
         />
         <button
           type="button"
-          className="border border-gray-400 px-3 py-1 text-sm hover:bg-gray-100"
+          className="rg-btn rg-btn-primary rg-btn-xs"
           onClick={acrescentar}
         >
           Acrescentar
@@ -132,7 +132,7 @@ function Coluna({
             value={filtro}
             placeholder="Procurar na lista..."
             aria-label={`Procurar em ${def.titulo}`}
-            className="w-full border border-gray-300 px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            className="w-full border border-gray-300 px-2 py-1 text-sm outline-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c8a13a]"
             onChange={(e) => setFiltro(e.target.value)}
           />
         </div>
@@ -153,7 +153,7 @@ function Coluna({
               type="text"
               value={item}
               aria-label={`${def.titulo}: ${item}`}
-              className="min-w-0 flex-1 bg-transparent px-3 py-1.5 text-sm outline-none focus:bg-yellow-50 focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              className="min-w-0 flex-1 bg-transparent px-3 py-1.5 text-sm outline-none focus:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#c8a13a]"
               onChange={(e) => actions.alterar(def.key, indice, e.target.value)}
               onBlur={() => actions.ordenar(def.key)}
             />
@@ -181,11 +181,11 @@ export default function ListsPanel({ listas, erro, aviso, sync, actions }: Props
     <section className="mb-8">
       <button
         type="button"
-        className="flex w-full items-center justify-between border border-gray-400 bg-gray-50 px-3 py-2 text-left hover:bg-gray-100"
+        className="rg-panel-toggle flex w-full items-center justify-between px-3 py-2.5 text-left"
         aria-expanded={aberto}
         onClick={() => setAberto((v) => !v)}
       >
-        <span className="text-sm font-bold">
+        <span className="text-sm font-bold" style={{ color: 'var(--red-800)' }}>
           Cadastro de viaturas e condutores{' '}
           <span className="font-normal text-gray-600">
             — {listas.vtr.length} viaturas, {listas.condutor.length} condutores
@@ -202,7 +202,7 @@ export default function ListsPanel({ listas, erro, aviso, sync, actions }: Props
       </button>
 
       {aberto && (
-        <div className="border border-t-0 border-gray-400 p-3">
+        <div className="rg-card mt-2 p-3">
           <p className="mb-3 text-xs text-gray-600">
             Estes nomes alimentam o autopreenchimento das colunas{' '}
             <strong>Interna</strong>, <strong>Externa</strong>, <strong>Condutor</strong> e{' '}
