@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 import { createApp } from './app.js';
 import { openDatabase } from './db.js';
 
@@ -15,13 +17,28 @@ const ALLOWED_ORIGINS = (
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+/** Pasta do app pronto (frontend compilado). Quando existe, este servidor
+ *  entrega o app e a API juntos na mesma porta. */
+const STATIC_DIR =
+  process.env.STATIC_DIR ?? fileURLToPath(new URL('../../dist', import.meta.url));
+
 const store = openDatabase(DB_FILE);
-const app = createApp({ store, allowedOrigins: ALLOWED_ORIGINS });
+const app = createApp({
+  store,
+  allowedOrigins: ALLOWED_ORIGINS,
+  staticDir: STATIC_DIR,
+});
 
 const server = app.listen(PORT, HOST, () => {
-  console.log(`Registro da Guarda — API em http://${HOST}:${PORT}`);
-  console.log(`Banco: ${DB_FILE}`);
-  console.log(`Origens permitidas: ${ALLOWED_ORIGINS.join(', ') || '(nenhuma)'}`);
+  const temApp = existsSync(STATIC_DIR);
+  console.log('====================================================');
+  console.log(' Registro da Guarda');
+  console.log(`   Abra no navegador:  http://localhost:${PORT}`);
+  if (!temApp) {
+    console.log('   (app ainda não compilado — rode "npm run build" na raiz)');
+  }
+  console.log(`   Banco de dados:    ${DB_FILE}`);
+  console.log('====================================================');
 });
 
 function shutdown(signal) {

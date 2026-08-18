@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import express from 'express';
 import { ConflitoDeVersao } from './db.js';
 import {
@@ -61,7 +63,7 @@ function cors(allowedOrigins) {
   };
 }
 
-export function createApp({ store, allowedOrigins = [], logger = console }) {
+export function createApp({ store, allowedOrigins = [], logger = console, staticDir = null }) {
   const app = express();
 
   app.disable('x-powered-by');
@@ -146,6 +148,17 @@ export function createApp({ store, allowedOrigins = [], logger = console }) {
       next(error);
     }
   });
+
+  // Em produção o mesmo servidor entrega o app pronto (dist/), na mesma porta
+  // da API — uma janela só, sem CORS, sem servidor de desenvolvimento.
+  if (staticDir && existsSync(staticDir)) {
+    app.use(express.static(staticDir));
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api')) return next();
+      const index = join(staticDir, 'index.html');
+      return existsSync(index) ? res.sendFile(index) : next();
+    });
+  }
 
   app.use((_req, res) => res.status(404).json({ erro: 'rota não encontrada' }));
 

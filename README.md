@@ -41,18 +41,22 @@ Descompacte, por exemplo, em `C:\registro-guarda`.
 
 Dê **dois cliques em `INICIAR.bat`**.
 
-Na primeira vez ele instala tudo (leva alguns minutos e precisa de internet
-**apenas nesta vez**). Depois disso abre sozinho o navegador em
-`http://localhost:5173`.
+Na primeira vez ele instala e prepara tudo (leva alguns minutos e precisa de
+internet **apenas nesta vez**). Depois abre sozinho o navegador em
+**`http://localhost:4000`**.
 
-> **Duas janelas negras vão abrir: BANCO DE DADOS e TELA.**
-> Mantenha as duas abertas enquanto estiver usando. Para encerrar, feche as duas.
+> **Abre UMA janela preta: SERVIDOR.** Mantenha-a aberta enquanto estiver
+> usando; para encerrar, feche essa janela. O aplicativo e o banco de dados
+> rodam juntos nela.
+
+**Atualizou o programa** (baixou uma versão nova)? Rode o **`ATUALIZAR.bat`**
+uma vez antes de usar — ele recompila o aplicativo.
 
 ---
 
 ## Uso no dia a dia
 
-1. Dois cliques em `INICIAR.bat`.
+1. Dois cliques em `INICIAR.bat` (abre em `http://localhost:4000`).
 2. Preencher **DATA** (já vem com hoje), **CMT. DA GUARDA**, **VIGILANTE** e,
    na folha de pais, **ALA DE SERVIÇO**.
 3. Clicar em **+ Adicionar linha** e lançar os registros. As horas são aceitas
@@ -120,9 +124,10 @@ O botão **Salvar no banco** envia na hora. Sozinho, o programa envia **a cada
 
 ## Perguntas comuns
 
-**O programa some se eu fechar o navegador sem querer?**
-Não. Ele grava neste navegador a cada tecla digitada. Ao reabrir, o turno volta,
-com um aviso de que o conteúdo foi restaurado.
+**Fechei a janela SERVIDOR sem querer. E agora?**
+O aplicativo para de responder. É só rodar o `INICIAR.bat` de novo — nada é
+perdido, os dados estão no banco. Enquanto o servidor está no ar, se você só
+fechar o navegador, reabra em `http://localhost:4000` que o turno continua lá.
 
 **Aparece uma data que não é a de hoje. Está errado?**
 Não — é proposital. Significa que essa folha é de outro dia (você reabriu um
@@ -160,19 +165,18 @@ servidor antes de copiar apenas o `.sqlite`.
 Copiar só o `.sqlite` com o servidor ligado traz um banco quase vazio: as
 gravações recentes ainda estão no arquivo `-wal`.
 
-### Rodar em rede, com a tela em outra máquina
+### Rodar em rede, com outras máquinas da portaria
 
-Por padrão tudo funciona numa máquina só. Para outras máquinas acessarem:
+O aplicativo e o banco rodam juntos numa porta só. **Numa máquina** (a que
+guarda o banco), rode o `INICIAR.bat` normalmente. As **outras máquinas** da
+rede interna acessam pelo navegador, sem instalar nada:
 
-```bat
-rem no computador que guarda o banco (ex.: 10.0.0.20)
-set ALLOWED_ORIGINS=http://10.0.0.20:5173
-npm --prefix server start
-
-rem a tela, aceitando conexões da rede
-set VITE_API_URL=http://10.0.0.20:4000
-npm run dev -- --host
 ```
+http://IP-DA-MAQUINA-DO-BANCO:4000
+```
+
+(descubra o IP com `ipconfig` na máquina do banco). Todas veem os mesmos dados,
+porque falam com o mesmo servidor.
 
 Detalhes de configuração, rotas da API e recuperação de versões antigas estão em
 [`server/README.md`](server/README.md).
@@ -219,17 +223,20 @@ as inconsistências de padrão que já existiam: a maioria é `NOME + POSTO`
   tudo, inclusive os nomes dos alunos. Isso foi uma decisão de projeto assumindo
   rede interna fechada. Se a rede não for isolada, restrinja por firewall.
 - **O tráfego não é criptografado** (HTTP puro). Em rede compartilhada, é legível.
-- **O `INICIAR.bat` usa o servidor de desenvolvimento.** Funciona bem, mas para
-  uma instalação definitiva o correto é gerar a versão otimizada (`npm run build`)
-  e servi-la, além de transformar o banco em serviço do Windows, que sobe junto
-  com a máquina e não depende de janela aberta.
+- **O servidor depende de uma janela aberta.** O `INICIAR.bat` já usa a versão
+  otimizada do aplicativo (um servidor só, porta 4000), mas ele roda numa janela
+  de comando. Para uma instalação definitiva que suba sozinha com a máquina, o
+  ideal é transformar esse servidor em **serviço do Windows** (com NSSM, por
+  exemplo) — aí não depende de ninguém deixar a janela aberta.
 
 ### Estrutura
 
 ```
-INICIAR.bat        inicia tudo com dois cliques
+INICIAR.bat        inicia tudo com dois cliques (app + banco na porta 4000)
+ATUALIZAR.bat      recompila o app depois de baixar uma versão nova
 src/               a tela (React + TypeScript)
-server/            o banco de dados (Node + SQLite)
+server/            o servidor: banco de dados + entrega do app (Node + SQLite)
+dist/              o app compilado (gerado pelo build; não vai para o Git)
 fixtures/          arquivos de exemplo para testar a importação
 ```
 

@@ -24,21 +24,16 @@ Variáveis de ambiente, todas opcionais:
 | `PORT` | `4000` | Porta da API |
 | `HOST` | `0.0.0.0` | `0.0.0.0` aceita as outras máquinas da rede; `127.0.0.1` restringe à própria máquina |
 | `DB_FILE` | `data/registro.sqlite` | Caminho do arquivo do banco |
-| `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:5177` | Origens autorizadas a chamar a API, separadas por vírgula |
+| `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:5177` | Origens autorizadas em desenvolvimento (Vite). Em produção o app e a API ficam na mesma origem, então isto não é usado. |
+| `STATIC_DIR` | `../dist` | Pasta do app compilado que o servidor entrega junto com a API |
 
-Quando o frontend for servido de outra máquina, informe a origem dele:
-
-```bash
-ALLOWED_ORIGINS=http://10.0.0.5:5173 npm start
-```
-
-E aponte o frontend para o servidor no build:
-
-```bash
-VITE_API_URL=http://10.0.0.20:4000 npm run build
-```
+Em produção o servidor entrega **o app e a API na mesma porta** (`4000` por
+padrão): compile o app com `npm run build` na raiz e rode `npm --prefix server
+start`. Abra `http://localhost:4000`. Outras máquinas da rede acessam por
+`http://IP-DO-SERVIDOR:4000` — não há CORS, porque tudo vem da mesma origem.
 
 `VITE_AUTOSAVE_MS` altera o intervalo do checkpoint automático (padrão 20 min).
+`STATIC_DIR` aponta para outra pasta do app compilado, se necessário.
 
 ## Rotas
 

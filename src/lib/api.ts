@@ -4,7 +4,11 @@ import type { Listas } from './lists';
 /** Endereço do servidor da unidade. Configurável em build por VITE_API_URL
  *  quando o backend não estiver na mesma máquina do navegador. */
 export const API_URL: string = (
-  (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:4000'
+  // Vazio = mesma origem do servidor que entregou a página (produção, uma porta
+  // só). Em desenvolvimento, o Vite encaminha /api para o backend (ver
+  // vite.config.ts). VITE_API_URL só é necessário se o app for servido de outra
+  // máquina que não o banco.
+  (import.meta.env.VITE_API_URL as string | undefined) ?? ''
 ).replace(/\/$/, '');
 
 /** Tempo máximo de espera por resposta. Sem isso, uma rede que "pendura" a
