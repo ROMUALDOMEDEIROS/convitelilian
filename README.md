@@ -34,10 +34,17 @@ O programa precisa do **Node.js** (o motor que o faz rodar). Dois jeitos:
 - **Com o instalador** (`.msi`) — o comum, mas **pede senha de administrador**.
 - **Sem administrador** (recomendado se você não tem a senha): baixe em
   **https://nodejs.org** o arquivo **"Windows Binary (.zip)" 64-bit** (é um
-  `.zip`, não o instalador). Descompacte em **`%USERPROFILE%\node`**
-  (ex.: `C:\Users\seu-usuario\node`) **ou** numa pasta `node` dentro da pasta
-  do programa. O `INICIAR.bat` encontra o Node aí sozinho — não precisa instalar
-  nem configurar nada.
+  `.zip`, não o instalador) e **descompacte** em qualquer uma destas pastas:
+
+  | Pasta |
+  |---|
+  | `%USERPROFILE%\node` (ex.: `C:\Users\seu-usuario\node`) |
+  | `%USERPROFILE%\Downloads` ou `%USERPROFILE%\Desktop` |
+  | a própria pasta do programa (junto do `INICIAR.bat`) |
+
+  **Não precisa renomear nada.** A pasta pode continuar com o nome que o `.zip`
+  cria (`node-v24.19.0-win-x64`) — o `INICIAR.bat` procura os dois formatos e
+  põe o Node no caminho sozinho.
 
 ### 2. Baixar esta pasta
 
@@ -154,6 +161,21 @@ específico.
 **Preciso de internet?**
 Só na primeira instalação. Depois, apenas a rede interna da unidade.
 
+**O `INICIAR.bat` cospe erros como `'cho' não é reconhecido` ou `'/d' não é
+reconhecido`, e no fim diz que não achou o Node.**
+Você está com uma **cópia antiga** do programa. Aqueles `.bat` foram gravados
+com quebra de linha do Unix (LF); o `cmd.exe` lê o arquivo desalinhado e come
+os primeiros caracteres de cada linha — `@echo off` vira `cho`, `cd /d` vira
+`/d`. Não é problema da sua máquina nem do Node. **Baixe o ZIP de novo** (o
+projeto agora força CRLF nesses arquivos, via `.gitattributes`) e rode outra vez.
+
+**O `npm install` do servidor falha pedindo Visual Studio (`node-gyp`,
+`Could not find any Visual Studio installation`).**
+Não acontece mais: os scripts instalam o servidor com `--ignore-scripts`, porque
+o `better-sqlite3` já traz o binário pronto para Windows (`prebuilds/win32-x64.node`)
+e não precisa compilar nada. Se você estiver instalando na mão, use
+`npm install --prefix server --ignore-scripts`.
+
 **Onde ficam os dados?**
 No arquivo `server/data/registro.sqlite`, na própria máquina. Nada vai para a
 internet. Os registros dos turnos e o cadastro de viaturas e condutores ficam
@@ -180,6 +202,16 @@ remover, rode **`DESINSTALAR-SERVICO.bat`** como administrador.
 > Por baixo, é uma **Tarefa Agendada do Windows** que sobe o servidor oculto
 > (via `servidor-oculto.vbs`) na inicialização. Não precisa baixar nada além do
 > Node.js. O registro do que o serviço faz fica em `server\servico.log`.
+
+O serviço roda como **SYSTEM**, que tem um `PATH` diferente do seu usuário e
+não enxergaria um Node portátil descompactado dentro da sua pasta pessoal. Por
+isso o `INSTALAR-SERVICO.bat` anota a pasta do Node num arquivo `node-dir.txt`,
+e o `servidor-oculto.vbs` a coloca no `PATH` antes de subir o servidor. Se você
+**mudar o Node de lugar**, rode o `INSTALAR-SERVICO.bat` de novo para reanotar.
+
+O instalador só diz **PRONTO** depois de confirmar que o servidor respondeu de
+verdade em `http://localhost:4000`. Se ele avisar que não respondeu, o motivo
+está em `server\servico.log`.
 
 Se preferir não instalar o serviço, o `INICIAR.bat` continua funcionando (com a
 janela aberta).

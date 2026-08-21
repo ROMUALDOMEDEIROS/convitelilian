@@ -1,0 +1,16 @@
+# Os scripts do Windows PRECISAM de quebra de linha CRLF. Com LF, o cmd.exe
+# le o arquivo desalinhado e come os primeiros caracteres de cada linha
+# ("@echo off" vira "cho", "cd /d" vira "/d"), quebrando o INICIAR.bat.
+# Isto vale tambem para o ZIP baixado pelo botao "Code" do GitHub.
+*.bat text eol=crlf
+*.vbs text eol=crlf
+*.cmd text eol=crlf
+
+# O resto do projeto fica com LF.
+*.js   text eol=lf
+*.ts   text eol=lf
+*.tsx  text eol=lf
+*.json text eol=lf
+*.css  text eol=lf
+*.md   text eol=lf
+*.html text eol=lf

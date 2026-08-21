@@ -1,5 +1,4 @@
 @echo off
-chcp 65001 > nul
 title Registro da Guarda
 cd /d "%~dp0"
 
@@ -8,9 +7,6 @@ echo   REGISTRO DA GUARDA
 echo ============================================================
 echo.
 
-rem --- 1. Localiza o Node.js ------------------------------------------
-rem Procura primeiro um Node PORTATIL (sem instalacao, sem administrador),
-rem depois o Node instalado no sistema. Assim funciona nos dois casos.
 call :ACHAR_NODE
 
 where node > nul 2>&1
@@ -19,10 +15,12 @@ if errorlevel 1 (
   echo.
   echo   Opcao SEM administrador ^(recomendada^):
   echo     1^) Baixe em https://nodejs.org o arquivo "Windows Binary (.zip)" 64-bit
-  echo     2^) Descompacte em uma destas pastas:
+  echo     2^) Descompacte em qualquer uma destas pastas:
   echo          %USERPROFILE%\node
-  echo          %~dp0node
-  echo     3^) Rode este INICIAR.bat de novo.
+  echo          %~dp0
+  echo        A pasta pode ficar com o nome node-v24.19.0-win-x64 mesmo;
+  echo        este script encontra do mesmo jeito.
+  echo     3^) Rode este arquivo de novo.
   echo.
   echo   Ou peca ao setor de informatica para instalar o Node.js ^(LTS^).
   echo.
@@ -30,11 +28,15 @@ if errorlevel 1 (
   exit /b 1
 )
 
-for /f "delims=" %%v in ('node -v') do set NODEVER=%%v
-echo Node.js %NODEVER% encontrado.
+for /f "delims=" %%v in ('node -v') do set "NODEVER=%%v"
+if defined NODE_DIR (
+  echo Node.js %NODEVER% encontrado em: %NODE_DIR%
+) else (
+  echo Node.js %NODEVER% encontrado ^(instalado no sistema^).
+)
 echo.
 
-rem --- 2. Primeira vez? Instala as bibliotecas -----------------------
+rem --- 1. Primeira vez? Instala as bibliotecas -----------------------
 if not exist "node_modules" (
   echo Primeira execucao: instalando o aplicativo. Isso leva alguns minutos...
   call npm install
@@ -42,18 +44,20 @@ if not exist "node_modules" (
 )
 if not exist "server\node_modules" (
   echo Primeira execucao: instalando o banco de dados...
-  call npm install --prefix server
+  rem --ignore-scripts: o banco ja vem com o binario pronto para Windows.
+  rem Sem isso, o npm tentaria compilar e exigiria o Visual Studio.
+  call npm install --prefix server --ignore-scripts
   if errorlevel 1 goto erro_install
 )
 
-rem --- 3. Compila o aplicativo se ainda nao houver versao pronta -----
+rem --- 2. Compila o aplicativo se ainda nao houver versao pronta -----
 if not exist "dist\index.html" (
   echo Preparando o aplicativo ^(so na primeira vez, ou apos atualizar^)...
   call npm run build
   if errorlevel 1 goto erro_build
 )
 
-rem --- 4. Sobe UM servidor: aplicativo + banco na mesma porta --------
+rem --- 3. Sobe UM servidor: aplicativo + banco na mesma porta --------
 echo.
 echo Ligando o Registro da Guarda...
 start "Registro da Guarda - SERVIDOR" cmd /k "npm --prefix server start"
@@ -77,7 +81,7 @@ echo ============================================================
 echo.
 echo   Aplicativo aberto em:  http://localhost:4000
 echo.
-echo   Abriu UMA janela "SERVIDOR" — mantenha-a aberta enquanto
+echo   Abriu UMA janela "SERVIDOR": mantenha-a aberta enquanto
 echo   estiver usando. Para encerrar, feche essa janela.
 echo.
 echo   Outras maquinas da rede acessam por:  http://IP-DESTA-MAQUINA:4000
@@ -103,20 +107,36 @@ pause
 exit /b 1
 
 rem ===================================================================
-rem  Coloca a pasta do Node PORTATIL no PATH desta sessao, se existir.
-rem  Aceita a pasta direta (node\node.exe) ou a subpasta versionada que
-rem  o .zip do Node cria (node-vXX.XX.X-win-x64\node.exe).
+rem  Procura o Node.js: primeiro o PORTATIL (pasta descompactada, sem
+rem  instalacao e sem administrador), depois o instalado no sistema.
+rem  Aceita a pasta ja renomeada para "node" e tambem a pasta versionada
+rem  que o .zip cria sozinho (node-v24.19.0-win-x64), nos lugares onde
+rem  as pessoas costumam descompactar.
 rem ===================================================================
 :ACHAR_NODE
 set "NODE_DIR="
-for %%D in ("%~dp0node" "%USERPROFILE%\node" "%USERPROFILE%\Downloads\node") do (
-  if exist "%%~D\node.exe" set "NODE_DIR=%%~D"
-)
-if not defined NODE_DIR (
-  for /d %%D in ("%~dp0node\node-v*-win-x64" "%USERPROFILE%\node\node-v*-win-x64" "%USERPROFILE%\Downloads\node-v*-win-x64") do (
-    if exist "%%~D\node.exe" set "NODE_DIR=%%~D"
-  )
-)
-rem A janela do servidor aberta com "start" herda este PATH automaticamente.
+call :NODE_TESTA "%~dp0node"
+call :NODE_TESTA "%USERPROFILE%\node"
+call :NODE_TESTA "%USERPROFILE%\Downloads\node"
+call :NODE_TESTA "%USERPROFILE%\Desktop\node"
+call :NODE_TESTA "%LOCALAPPDATA%\node"
+call :NODE_VERSAO "%~dp0"
+call :NODE_VERSAO "%~dp0node\"
+call :NODE_VERSAO "%USERPROFILE%\"
+call :NODE_VERSAO "%USERPROFILE%\node\"
+call :NODE_VERSAO "%USERPROFILE%\Downloads\"
+call :NODE_VERSAO "%USERPROFILE%\Desktop\"
 if defined NODE_DIR set "PATH=%NODE_DIR%;%PATH%"
+goto :eof
+
+:NODE_TESTA
+if defined NODE_DIR goto :eof
+if exist "%~1\node.exe" set "NODE_DIR=%~1"
+goto :eof
+
+:NODE_VERSAO
+if defined NODE_DIR goto :eof
+for /f "delims=" %%D in ('dir /b /ad "%~1node-v*-win-x64" 2^>nul') do (
+  if not defined NODE_DIR if exist "%~1%%D\node.exe" set "NODE_DIR=%~1%%D"
+)
 goto :eof
