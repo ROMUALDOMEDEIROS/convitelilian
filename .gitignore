@@ -4,3 +4,12 @@ dist-demo
 *.local
 .DS_Store
 tsconfig.tsbuildinfo
+
+# pasta do Node.js portatil, se descompactada aqui dentro
+node
+node-v*-win-x64
+
+# gerados pelo servico
+node-dir.txt
+server/servico.log
+server/data
