@@ -185,7 +185,33 @@ os dois no banco.
 
 ## Para quem cuida da máquina
 
-### Rodar como serviço (sobe sozinho, sem janela aberta) — recomendado
+### Sobe sozinho **sem senha de administrador** — recomendado
+
+Se você não tem a senha de administrador da máquina, ainda dá para o app subir
+sozinho, sem janela preta aberta. Dois cliques em **`INICIAR-COM-O-WINDOWS.bat`**.
+
+Ele põe um lançador na **pasta de Inicialização do seu usuário**
+(`%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup`), que é sua e não
+exige administrador. A partir do próximo login, o servidor sobe escondido.
+
+Para desfazer, rode **`REMOVER-DO-WINDOWS.bat`** (também sem administrador).
+
+| | Sem admin (Inicialização) | Com admin (serviço) |
+|---|---|---|
+| Sobe quando | **você faz login** | **a máquina liga**, antes de qualquer login |
+| Pede senha | não | sim, uma vez |
+| Janela aberta | nenhuma | nenhuma |
+| Arquivo | `INICIAR-COM-O-WINDOWS.bat` | `INSTALAR-SERVICO.bat` |
+
+A diferença prática é só essa: pela Inicialização, a máquina precisa chegar até
+a tela logada para o app estar no ar. Numa portaria onde o computador fica
+sempre logado no mesmo usuário, dá no mesmo.
+
+> **Nada é "instalado" em nenhum dos dois casos.** O Node.js portátil é uma
+> pasta com arquivos — sem instalador, sem registro do Windows. Para remover
+> tudo, apague as pastas e rode o `REMOVER-DO-WINDOWS.bat`.
+
+### Rodar como serviço (sobe sozinho ao ligar a máquina, com administrador)
 
 Para a máquina da portaria não depender de ninguém deixar a janela aberta,
 instale o Registro da Guarda como serviço. Ele passa a subir **sozinho toda vez
@@ -213,8 +239,8 @@ O instalador só diz **PRONTO** depois de confirmar que o servidor respondeu de
 verdade em `http://localhost:4000`. Se ele avisar que não respondeu, o motivo
 está em `server\servico.log`.
 
-Se preferir não instalar o serviço, o `INICIAR.bat` continua funcionando (com a
-janela aberta).
+Se preferir nenhum dos dois modos automáticos, o `INICIAR.bat` continua
+funcionando (com a janela aberta).
 
 ### Backup — importante
 
@@ -284,18 +310,20 @@ as inconsistências de padrão que já existiam: a maioria é `NOME + POSTO`
   rede interna fechada. Se a rede não for isolada, restrinja por firewall.
 - **O tráfego não é criptografado** (HTTP puro). Em rede compartilhada, é legível.
 - **Pelo `INICIAR.bat`, o servidor depende da janela aberta.** Para a máquina
-  da portaria, prefira instalar como serviço (`INSTALAR-SERVICO.bat`, acima) —
-  aí sobe sozinho na inicialização e não depende de ninguém deixar janela
-  aberta.
+  da portaria, prefira um dos modos automáticos acima: sem senha de
+  administrador, `INICIAR-COM-O-WINDOWS.bat`; com senha,
+  `INSTALAR-SERVICO.bat`. Nos dois, o servidor sobe sozinho e escondido.
 
 ### Estrutura
 
 ```
-INICIAR.bat            inicia tudo com dois cliques (app + banco na porta 4000)
-ATUALIZAR.bat          recompila o app depois de baixar uma versão nova
-INSTALAR-SERVICO.bat   instala como serviço (sobe sozinho ao ligar a máquina)
-DESINSTALAR-SERVICO.bat remove o serviço
-servidor-oculto.vbs    lançador sem janela, usado pelo serviço
+INICIAR.bat               dois cliques: app + banco na porta 4000, janela aberta
+ATUALIZAR.bat             recompila o app depois de baixar uma versão nova
+INICIAR-COM-O-WINDOWS.bat sobe sozinho no login, SEM senha de administrador
+REMOVER-DO-WINDOWS.bat    desfaz o de cima
+INSTALAR-SERVICO.bat      sobe ao ligar a máquina; pede administrador uma vez
+DESINSTALAR-SERVICO.bat   remove o serviço
+servidor-oculto.vbs       lançador sem janela, usado pelos dois modos automáticos
 src/               a tela (React + TypeScript)
 server/            o servidor: banco de dados + entrega do app (Node + SQLite)
 dist/              o app compilado (gerado pelo build; não vai para o Git)
