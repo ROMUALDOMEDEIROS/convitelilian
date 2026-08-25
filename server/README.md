@@ -26,6 +26,8 @@ Variáveis de ambiente, todas opcionais:
 | `DB_FILE` | `data/registro.sqlite` | Caminho do arquivo do banco |
 | `ALLOWED_ORIGINS` | `http://localhost:5173,http://localhost:5177` | Origens autorizadas em desenvolvimento (Vite). Em produção o app e a API ficam na mesma origem, então isto não é usado. |
 | `STATIC_DIR` | `../dist` | Pasta do app compilado que o servidor entrega junto com a API |
+| `ARQUIVO_DIR` | `../server/arquivo` | Onde gravar os PDFs dos dias que saem do banco |
+| `RETENCAO_DIAS` | `7` | Dias mantidos no banco, contando o de hoje. **`0` desliga o expurgo** e o banco passa a guardar tudo |
 
 Em produção o servidor entrega **o app e a API na mesma porta** (`4000` por
 padrão): compile o app com `npm run build` na raiz e rode `npm --prefix server
@@ -34,6 +36,34 @@ start`. Abra `http://localhost:4000`. Outras máquinas da rede acessam por
 
 `VITE_AUTOSAVE_MS` altera o intervalo do checkpoint automático (padrão 20 min).
 `STATIC_DIR` aponta para outra pasta do app compilado, se necessário.
+
+## Retenção: sete dias no banco, o resto em PDF
+
+O banco guarda os últimos `RETENCAO_DIAS` (7) de cada folha. Ao passar disso, o
+dia é gravado como PDF em `ARQUIVO_DIR` e **só então** removido do banco.
+
+A ordem é o ponto todo de `src/arquivo.js`: o arquivo é escrito e conferido
+(existe, e não saiu com zero bytes) **antes** do `DELETE`. Falhando a gravação —
+disco cheio, pasta inacessível — o dia continua no banco e a próxima passagem
+tenta de novo. Um dia sem cópia em disco nunca é apagado.
+
+O `DELETE` na tabela `snapshot` leva junto o histórico em `snapshot_version`,
+pela cascata da chave estrangeira. Por isso o PDF é a cópia final: depois do
+expurgo não há versão anterior a recuperar.
+
+A passagem roda **ao subir o servidor** e depois a cada 6 horas, o que cobre a
+virada do dia numa máquina que fica semanas ligada.
+
+O PDF sai de `shared/pdf.js`, o mesmo módulo que o navegador usa no botão
+Exportar — a folha arquivada e a exportada são idênticas por construção, não por
+coincidência. Por isso `jspdf` e `jspdf-autotable` estão fixados aqui **na mesma
+versão da raiz**: versões diferentes fariam os dois layouts divergirem em
+silêncio.
+
+```bash
+RETENCAO_DIAS=30 npm start     # guarda 30 dias em vez de 7
+RETENCAO_DIAS=0  npm start     # nunca expurga
+```
 
 ## Rotas
 
@@ -95,6 +125,8 @@ O que ele **não** faz, e você deve considerar:
   tráfego é legível.
 - **Backup é sua responsabilidade.** Copie `data/registro.sqlite` junto com os
   arquivos `-wal` e `-shm`, ou pare o servidor antes de copiar só o `.sqlite`.
+  **E copie `arquivo/` também**: passados 7 dias, os PDFs de lá são a única
+  cópia daqueles turnos.
 
 ## Testes
 

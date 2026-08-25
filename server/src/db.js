@@ -122,6 +122,13 @@ export function openDatabase(file) {
        ORDER BY dia DESC
        LIMIT ?
     `),
+    listDaysBefore: db.prepare(`
+      SELECT dia, row_count AS rowCount
+        FROM snapshot
+       WHERE table_id = ? AND dia < ?
+       ORDER BY dia ASC
+    `),
+    deleteDay: db.prepare(`DELETE FROM snapshot WHERE table_id = ? AND dia = ?`),
   };
 
   /** Grava (ou sobrescreve) o snapshot do dia e registra a versão. */
@@ -163,6 +170,19 @@ export function openDatabase(file) {
     return stmt.listDays.all(tableId, limit);
   }
 
+  /** Dias gravados anteriores a `dia` (exclusive), do mais antigo ao mais novo.
+   *  É a lista que o expurgo percorre. */
+  function listDaysBefore(tableId, dia) {
+    return stmt.listDaysBefore.all(tableId, dia);
+  }
+
+  /** Apaga um dia. O histórico em snapshot_version vai junto, pela cascata da
+   *  chave estrangeira — por isso o expurgo só é chamado depois de o PDF do dia
+   *  estar gravado em disco. Devolve quantas linhas saíram (0 ou 1). */
+  function deleteDay(tableId, dia) {
+    return stmt.deleteDay.run(tableId, dia).changes;
+  }
+
   /** Cadastro atual. Versao 0 significa que nunca foi gravado. */
   function loadListas() {
     const linha = stmt.getListas.get();
@@ -193,5 +213,15 @@ export function openDatabase(file) {
     return { versao, updatedAt: now };
   });
 
-  return { db, save, load, listDays, loadListas, saveListas, close: () => db.close() };
+  return {
+    db,
+    save,
+    load,
+    listDays,
+    listDaysBefore,
+    deleteDay,
+    loadListas,
+    saveListas,
+    close: () => db.close(),
+  };
 }

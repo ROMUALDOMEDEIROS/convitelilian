@@ -69,24 +69,7 @@ export function parseDataToISO(value: unknown): string {
 }
 
 /** ISO -> "segunda-feira, 17 de agosto de 2026", como na folha original. */
-export function formatDataLonga(iso: string): string {
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return iso;
-  const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-/** Texto do campo como vai para o PDF. */
-export function formatHeaderValue(field: HeaderFieldDef, value: string): string {
-  if (field.type === 'data') return value === '' ? '' : formatDataLonga(value);
-  return value;
-}
+export { formatDataLonga, formatHeaderValue } from '../../shared/formato.js';
 
 function acceptedLabels(field: HeaderFieldDef): string[] {
   return [field.label, ...(field.aliases ?? [])].map(normalizeHeader);

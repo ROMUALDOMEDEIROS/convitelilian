@@ -107,6 +107,55 @@ export async function saveSnapshot(
   };
 }
 
+export interface DiaGravado {
+  dia: string;
+  rowCount: number;
+  updatedAt: string;
+}
+
+/** Dias que o banco ainda guarda desta folha, do mais novo para o mais antigo.
+ *  Devolve null quando o servidor está fora — a tela então diz isso, em vez de
+ *  fingir que o histórico está vazio. */
+export async function fetchDias(table: TableDef): Promise<DiaGravado[] | null> {
+  try {
+    const body = (await request(`/api/snapshot/${table.id}/dias`)) as { dias?: DiaGravado[] };
+    return Array.isArray(body.dias) ? body.dias : [];
+  } catch {
+    return null;
+  }
+}
+
+export interface TurnoGravado {
+  dia: string;
+  header: HeaderValues;
+  rows: Row[];
+  rowCount: number;
+  updatedAt: string;
+}
+
+/** Lê um dia já gravado. Devolve null se o dia não existir mais no banco —
+ *  o caso normal depois de ele ter sido arquivado e expurgado. */
+export async function fetchSnapshot(
+  table: TableDef,
+  dia: string,
+): Promise<TurnoGravado | null> {
+  try {
+    const body = (await request(`/api/snapshot/${table.id}?dia=${encodeURIComponent(dia)}`)) as
+      | Partial<TurnoGravado>
+      | null;
+    if (!body || !Array.isArray(body.rows)) return null;
+    return {
+      dia: typeof body.dia === 'string' ? body.dia : dia,
+      header: (body.header as HeaderValues) ?? {},
+      rows: body.rows as Row[],
+      rowCount: typeof body.rowCount === 'number' ? body.rowCount : body.rows.length,
+      updatedAt: typeof body.updatedAt === 'string' ? body.updatedAt : '',
+    };
+  } catch {
+    return null;
+  }
+}
+
 export interface ListasRemotas {
   listas: Listas;
   versao: number;
