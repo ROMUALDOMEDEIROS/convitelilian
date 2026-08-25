@@ -319,6 +319,38 @@ está em `server\servico.log`.
 Se preferir nenhum dos dois modos automáticos, o `INICIAR.bat` continua
 funcionando (com a janela aberta).
 
+### Abrir todos os sistemas de uma vez
+
+Na portaria não se usa só o Registro da Guarda: há a intranet, a catraca e o
+que mais a unidade tiver. O **`ABRIR_SISTEMAS.vbs`** abre tudo numa janela do
+Chrome, uma aba por sistema, com **dois cliques e nenhuma janela preta**.
+
+Ele é um `.vbs`, e não um `.bat`, de propósito: **todo `.bat` pisca a tela preta
+do `cmd.exe`** ao rodar, nem que seja por um instante. O `.vbs` não abre janela
+nenhuma.
+
+Antes de abrir as abas, ele confere se o Registro da Guarda está respondendo e o
+religa se estiver parado — senão a aba do `localhost:4000` abriria em "Não é
+possível acessar esse site" toda vez que o servidor não estivesse no ar.
+
+**Os endereços ficam nas primeiras linhas do arquivo**, marcadas; edite com o
+Bloco de Notas para acrescentar ou trocar um sistema.
+
+> **Guarde-o um nível acima da pasta do programa**, e não dentro dela — dentro,
+> ele seria apagado toda vez que você substituísse `convitelilian-main` por um
+> ZIP novo. Ele se acha sozinho nos dois lugares, então é só copiá-lo para fora
+> uma vez:
+>
+> ```
+> Documents\romualdo\
+>     ABRIR_SISTEMAS.vbs        <- aqui
+>     convitelilian-main\       <- esta é trocada a cada atualização
+> ```
+
+Para ele abrir sozinho no login: botão direito → **Enviar para → Área de
+trabalho (criar atalho)**; depois `Windows+R`, digite `shell:startup`, Enter, e
+mova o atalho para essa pasta.
+
 ### Backup — importante
 
 São **duas** pastas a copiar, e as duas importam:
@@ -401,6 +433,7 @@ as inconsistências de padrão que já existiam: a maioria é `NOME + POSTO`
 ### Estrutura
 
 ```
+ABRIR_SISTEMAS.vbs        abre os sistemas da portaria no Chrome, sem janela
 INICIAR.bat               dois cliques: app + banco na porta 4000, janela aberta
 ATUALIZAR.bat             recompila o app depois de baixar uma versão nova
 INICIAR-COM-O-WINDOWS.bat sobe sozinho no login, SEM senha de administrador
