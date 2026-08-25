@@ -15,6 +15,8 @@ O que ele faz:
 - **cadastro de viaturas e condutores** já preenchido com as 22 viaturas e os 68
   condutores da aba `Dados`, editável e com **autopreenchimento** ao digitar;
 - **digita direto na tela**, com adicionar e excluir linha;
+- **carimba a hora da saída** ao lançar a viatura, sem digitar — e sem
+  sobrescrever a hora que você tiver posto à mão;
 - **data automática**, preenchida com o dia de hoje mas gravada como valor fixo:
   ela não se reescreve sozinha como o `=HOJE()` da planilha antiga;
 - **gera os dois PDFs** em A4 (viaturas em retrato, pais em paisagem), com
@@ -77,6 +79,26 @@ uma vez antes de usar — ele recompila o aplicativo.
    em qualquer formato: digitar `7:5` grava `07:05`; `1:30 PM` grava `13:30`.
 4. Ao fim do turno, **Exportar** gera o PDF para imprimir e arquivar.
 5. **Limpar** encerra o turno e devolve a data para hoje.
+
+### A hora da saída se preenche sozinha
+
+Na folha de viaturas, ao lançar a viatura em **Interna** ou **Externa**, a
+coluna **Saída** recebe a **hora do relógio** naquele instante. Digitou
+`APS 240`, saiu da célula, a hora do movimento já está gravada — sem digitar.
+
+Duas garantias que valem conhecer:
+
+- **Hora digitada à mão nunca é sobrescrita.** Se você preencher a Saída antes
+  de lançar a viatura, ela fica como está. O carimbo só age em célula vazia.
+- **Corrigir a viatura depois não mexe na hora.** Trocou `APS 240` por
+  `APS 241` na mesma linha? A Saída continua a do primeiro lançamento.
+
+Para lançar um horário diferente do relógio — um movimento anotado no papel e
+digitado depois, por exemplo — é só escrever por cima: a coluna continua
+editável como qualquer outra.
+
+> Quer o carimbo na coluna **Entrada** em vez de Saída, ou nas duas? É uma
+> linha em `src/schema.ts` (`carimbaHoraEm`), me avise.
 
 ### Cadastro de viaturas e condutores
 

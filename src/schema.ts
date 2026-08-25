@@ -17,6 +17,15 @@ export interface ColumnDef {
   aliases?: string[];
   /** quando presente, a célula autopreenche a partir desta lista cadastrada */
   lista?: ListKey;
+  /**
+   * Ao preencher esta coluna, carimba a hora atual na coluna indicada aqui.
+   * Serve para o vigilante não ter que digitar o horário: lançou a viatura,
+   * a hora do movimento fica registrada sozinha.
+   *
+   * Só carimba se a coluna de destino estiver **vazia** — uma hora lançada à
+   * mão nunca é sobrescrita.
+   */
+  carimbaHoraEm?: string;
   /** largura da coluna no PDF, em mm */
   pdfWidth: number;
 }
@@ -56,8 +65,8 @@ export const TABELA1: TableDef = {
   columns: [
     { key: 'entrada', label: 'Entrada', type: 'hora', pdfWidth: 25 },
     { key: 'saida', label: 'Saída', type: 'hora', pdfWidth: 25 },
-    { key: 'interna', label: 'Interna', type: 'texto', lista: 'vtr', pdfWidth: 40 },
-    { key: 'externa', label: 'Externa', type: 'texto', lista: 'vtr', pdfWidth: 40 },
+    { key: 'interna', label: 'Interna', type: 'texto', lista: 'vtr', carimbaHoraEm: 'saida', pdfWidth: 40 },
+    { key: 'externa', label: 'Externa', type: 'texto', lista: 'vtr', carimbaHoraEm: 'saida', pdfWidth: 40 },
     { key: 'condutor', label: 'Condutor', type: 'texto', lista: 'condutor', pdfWidth: 50 },
   ],
 };

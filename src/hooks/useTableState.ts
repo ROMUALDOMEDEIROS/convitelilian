@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { defaultHeaderValues } from '../lib/header';
 import { ImportError, importFile, type ImportReport } from '../lib/import';
 import { normalizeCell } from '../lib/normalize';
+import { normalizeHora } from '../lib/text';
 import { emptyRow, toTableRows, type TableRow } from '../lib/rows';
 import { clearTable, loadTable, saveTable } from '../lib/storage';
 import type { HeaderValues, Row, TableDef } from '../schema';
@@ -93,7 +94,8 @@ export function useTableState(table: TableDef): [TableState, TableActions] {
     }));
   }, []);
 
-  /** Saída da célula: aplica a mesma normalização da importação. */
+  /** Saída da célula: aplica a mesma normalização da importação e, quando a
+   *  coluna pede, carimba a hora atual na coluna de destino. */
   const commitCell = useCallback(
     (rowId: string, columnKey: string) => {
       const column = table.columns.find((c) => c.key === columnKey);
@@ -101,14 +103,24 @@ export function useTableState(table: TableDef): [TableState, TableActions] {
 
       setState((current) => ({
         ...current,
-        rows: current.rows.map((row) =>
-          row.id === rowId
-            ? {
-                ...row,
-                cells: { ...row.cells, [columnKey]: normalizeCell(row.cells[columnKey], column) },
-              }
-            : row,
-        ),
+        rows: current.rows.map((row) => {
+          if (row.id !== rowId) return row;
+
+          const cells = {
+            ...row.cells,
+            [columnKey]: normalizeCell(row.cells[columnKey], column),
+          };
+
+          // Lançou a viatura, a hora do movimento fica registrada sozinha.
+          // A condição de vazio é o que torna isto seguro: uma hora digitada
+          // à mão, ou vinda de um arquivo importado, nunca é sobrescrita.
+          const destino = column.carimbaHoraEm;
+          if (destino && cells[columnKey] !== '' && (cells[destino] ?? '') === '') {
+            cells[destino] = normalizeHora(new Date());
+          }
+
+          return { ...row, cells };
+        }),
       }));
     },
     [table],
