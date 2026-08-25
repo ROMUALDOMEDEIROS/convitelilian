@@ -10,8 +10,6 @@ Duas folhas de registro:
 
 O que ele faz:
 
-- **importa** as planilhas atuais (`.csv`, `.xlsx` e o próprio `.xlsm`), achando
-  as colunas pelo nome — inclusive o cabeçalho de duas alturas da folha de viaturas;
 - **cadastro de viaturas e condutores** já preenchido com as 22 viaturas e os 68
   condutores da aba `Dados`, editável e com **autopreenchimento** ao digitar;
 - **digita direto na tela**, com adicionar e excluir linha;
@@ -166,9 +164,9 @@ perdido, os dados estão no banco. Enquanto o servidor está no ar, se você só
 fechar o navegador, reabra em `http://localhost:4000` que o turno continua lá.
 
 **Aparece uma data que não é a de hoje. Está errado?**
-Não — é proposital. Significa que essa folha é de outro dia (você reabriu um
-turno anterior ou importou um arquivo antigo). Abaixo do campo aparece
-"não é a data de hoje". Se quer começar um turno novo, clique em **Limpar**.
+Não — é proposital. Significa que essa folha é de outro dia: você reabriu um
+turno anterior. Abaixo do campo aparece "não é a data de hoje". Se quer começar
+um turno novo, clique em **Limpar**.
 
 **Os nomes dos condutores mudaram. Onde eu altero?**
 Em **Cadastro de viaturas e condutores**, no topo. Acrescente, corrija ou exclua
@@ -349,7 +347,7 @@ servidor-oculto.vbs       lançador sem janela, usado pelos dois modos automáti
 src/               a tela (React + TypeScript)
 server/            o servidor: banco de dados + entrega do app (Node + SQLite)
 dist/              o app compilado (gerado pelo build; não vai para o Git)
-fixtures/          arquivos de exemplo para testar a importação
+fixtures/          arquivo de exemplo para testar a importação de listas
 ```
 
 ### Testes

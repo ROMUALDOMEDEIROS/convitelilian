@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import ConfirmarBotao from './ConfirmarBotao';
 import DataTable from './DataTable';
 import FormHeader from './FormHeader';
@@ -16,17 +16,12 @@ interface Props {
   table: TableDef;
   listas: Listas;
   onCadastrar: (key: ListKey, valor: string) => void;
-  /** Como esta folha é chamada nos botões. "Tabela 1" e "Tabela 2" não diziam
-   *  nada a quem opera; o nome do arquivo gerado segue sendo tabela1.pdf e
-   *  tabela2.pdf, como pede a especificação. */
-  label: string;
   state: TableState;
   actions: TableActions;
 }
 
-export default function TableCard({ table, label, listas, onCadastrar, state, actions }: Props) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { report, error, rows, header, restored } = state;
+export default function TableCard({ table, listas, onCadastrar, state, actions }: Props) {
+  const { rows, header, restored } = state;
   // memoizado para não gerar um array novo a cada render do card
   const cells = useMemo(() => rows.map((row) => row.cells), [rows]);
   const { status: sync, salvarAgora, intervaloMs } = useDbSync(table, header, cells);
@@ -51,25 +46,6 @@ export default function TableCard({ table, label, listas, onCadastrar, state, ac
       </header>
 
       <div className="flex flex-wrap items-center gap-2 mb-2">
-        <input
-          ref={inputRef}
-          type="file"
-          accept=".csv,.xlsx,.xlsm,.xls"
-          className="hidden"
-          onChange={(event) => {
-            const file = event.target.files?.[0];
-            if (file) void actions.importFrom(file);
-            // permite reimportar o mesmo arquivo
-            event.target.value = '';
-          }}
-        />
-        <button
-          type="button"
-          className="rg-btn"
-          onClick={() => inputRef.current?.click()}
-        >
-          Importar planilha de {label}
-        </button>
         <button
           type="button"
           className="rg-btn"
@@ -108,23 +84,9 @@ export default function TableCard({ table, label, listas, onCadastrar, state, ac
         </span>
       </div>
 
-      {error && <p className="mb-2 text-sm text-red-700">{error}</p>}
-
-      {restored && !report && (
+      {restored && (
         <p className="mb-2 text-xs text-gray-500">
           Conteúdo restaurado deste navegador. Use “Limpar” para começar um turno novo.
-        </p>
-      )}
-
-      {report && !error && (
-        <p className="mb-2 text-xs text-gray-500">
-          {report.fileName} — aba {report.sheetName}, cabeçalho na linha {report.headerRow}
-          {report.mergedHeader && ' (montado com a linha acima)'}
-          {report.separator && `, separador "${report.separator}"`}
-          {report.encoding && `, ${report.encoding}`}
-          {report.skippedBlank > 0 && `, ${report.skippedBlank} linha(s) vazia(s) descartada(s)`}
-          {report.headerFound.length > 0 &&
-            `. Cabeçalho lido do arquivo: ${report.headerFound.join(', ')}`}
         </p>
       )}
 
