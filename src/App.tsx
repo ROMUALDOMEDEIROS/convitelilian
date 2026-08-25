@@ -50,7 +50,6 @@ export default function App() {
 
       <TableCard
         table={TABELA1}
-        label="viaturas"
         listas={listas}
         onCadastrar={cadastrar}
         state={state1}
@@ -58,7 +57,6 @@ export default function App() {
       />
       <TableCard
         table={TABELA2}
-        label="pais / responsáveis"
         listas={listas}
         onCadastrar={cadastrar}
         state={state2}
