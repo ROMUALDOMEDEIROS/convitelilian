@@ -13,7 +13,7 @@ O que ele faz:
 - **cadastro de viaturas e condutores** já preenchido com as 22 viaturas e os 68
   condutores da aba `Dados`, editável e com **autopreenchimento** ao digitar;
 - **digita direto na tela**, com adicionar e excluir linha;
-- **carimba a hora da saída** ao lançar a viatura, sem digitar — e sem
+- **carimba a hora** ao lançar a viatura ou o responsável, sem digitar — e sem
   sobrescrever a hora que você tiver posto à mão;
 - **data automática**, preenchida com o dia de hoje mas gravada como valor fixo:
   ela não se reescreve sozinha como o `=HOJE()` da planilha antiga;
@@ -80,25 +80,34 @@ uma vez antes de usar — ele recompila o aplicativo.
 4. Ao fim do turno, **Exportar** gera o PDF para imprimir e arquivar.
 5. **Limpar** encerra o turno e devolve a data para hoje.
 
-### A hora da saída se preenche sozinha
+### A hora se preenche sozinha
 
-Na folha de viaturas, ao lançar a viatura em **Interna** ou **Externa**, a
-coluna **Saída** recebe a **hora do relógio** naquele instante. Digitou
-`APS 240`, saiu da célula, a hora do movimento já está gravada — sem digitar.
+Nas duas folhas, lançar quem chegou já grava o horário — sem digitar.
+
+| Folha | Preencha esta coluna | E esta recebe a hora |
+|---|---|---|
+| Viaturas | **Interna** ou **Externa** | **Saída** |
+| Pais / responsáveis | **PAIS / RESPONSÁVEIS** | **HORA** |
+
+Digitou `APS 240` (ou `MARIA DA SILVA`), saiu da célula, a hora do movimento já
+está gravada.
 
 Duas garantias que valem conhecer:
 
-- **Hora digitada à mão nunca é sobrescrita.** Se você preencher a Saída antes
-  de lançar a viatura, ela fica como está. O carimbo só age em célula vazia.
-- **Corrigir a viatura depois não mexe na hora.** Trocou `APS 240` por
-  `APS 241` na mesma linha? A Saída continua a do primeiro lançamento.
+- **Hora digitada à mão nunca é sobrescrita.** Se você preencher a hora antes
+  de lançar o nome, ela fica como está. O carimbo só age em célula vazia.
+- **Corrigir o nome depois não mexe na hora.** Trocou `APS 240` por `APS 241`,
+  ou corrigiu o nome do responsável, na mesma linha? A hora continua a do
+  primeiro lançamento.
+- **Só essas colunas disparam o carimbo.** Preencher *Condutor*, *Aluno* ou
+  *Destino* não grava hora nenhuma.
 
 Para lançar um horário diferente do relógio — um movimento anotado no papel e
 digitado depois, por exemplo — é só escrever por cima: a coluna continua
 editável como qualquer outra.
 
-> Quer o carimbo na coluna **Entrada** em vez de Saída, ou nas duas? É uma
-> linha em `src/schema.ts` (`carimbaHoraEm`), me avise.
+> Quer o carimbo em outra coluna — **Entrada** além de Saída, por exemplo? É
+> uma linha em `shared/schema.js` (`carimbaHoraEm`), me avise.
 
 ### Cadastro de viaturas e condutores
 

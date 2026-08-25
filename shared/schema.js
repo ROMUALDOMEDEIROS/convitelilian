@@ -47,7 +47,7 @@ export const TABELA2 = {
   // soma = 267mm = 297 (A4 paisagem) - 2 x 15mm de margem
   columns: [
     { key: 'hora', label: 'HORA', type: 'hora', pdfWidth: 22 },
-    { key: 'responsavel', label: 'PAIS / RESPONSÁVEIS', type: 'texto', pdfWidth: 62 },
+    { key: 'responsavel', label: 'PAIS / RESPONSÁVEIS', type: 'texto', carimbaHoraEm: 'hora', pdfWidth: 62 },
     { key: 'aluno', label: 'ALUNO', type: 'texto', pdfWidth: 57 },
     { key: 'serieTurma', label: 'SÉRIE/TURMA', type: 'texto', pdfWidth: 30 },
     { key: 'destino', label: 'DESTINO', type: 'texto', pdfWidth: 52 },
