@@ -1,4 +1,5 @@
 import AppHeader from './components/AppHeader';
+import HistoricoPanel from './components/HistoricoPanel';
 import ListsPanel from './components/ListsPanel';
 import TableCard from './components/TableCard';
 import { useLists } from './hooks/useLists';
@@ -62,6 +63,9 @@ export default function App() {
         state={state2}
         actions={actions2}
       />
+
+      {/* No modo demonstração não há banco, então não há dias a consultar. */}
+      {!DEMO && <HistoricoPanel />}
     </main>
   );
 }

@@ -13,3 +13,6 @@ node-v*-win-x64
 node-dir.txt
 server/servico.log
 server/data
+
+# PDFs dos dias arquivados: dados da unidade, nao vao para o Git
+server/arquivo

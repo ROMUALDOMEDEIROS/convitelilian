@@ -21,7 +21,9 @@ O que ele faz:
   cabeçalho repetido em toda página e "Página X de Y";
 - **salva sozinho** no navegador a cada tecla digitada;
 - **grava no banco de dados** da unidade, manualmente ou a cada 20 minutos,
-  com reenvio automático se a rede cair.
+  com reenvio automático se a rede cair;
+- **guarda os últimos 7 dias** para consulta na tela e, ao passar disso,
+  arquiva o dia em PDF antes de removê-lo do banco.
 
 ---
 
@@ -137,6 +139,46 @@ mudanças sobem sozinhas quando ele voltar.
 Se duas máquinas editarem o cadastro ao mesmo tempo, **as duas versões são
 unidas** — ninguém perde o que acrescentou.
 
+### Consultar dias anteriores
+
+Ao pé da tela, em **Consultar dias anteriores**, ficam os turnos já gravados no
+banco — os **últimos 7 dias** de cada folha, contando o de hoje. Escolha a folha
+(*Viaturas* ou *Pais / responsáveis*), clique em **Ver folha** no dia que quer e
+ele aparece exatamente como foi lançado, com um botão para baixar o PDF daquele
+dia (`2026-08-19-viaturas.pdf`).
+
+É consulta apenas: o que se vê ali não é editável. Para corrigir um turno
+anterior, reabra-o na folha e grave por cima.
+
+### O que acontece depois de 7 dias
+
+O dia **não some**: ele é gravado como PDF e só então sai do banco.
+
+Os arquivos ficam em **`server\arquivo`**, na máquina do servidor, um por folha
+e por dia:
+
+```
+server\arquivo\2026-08-19-viaturas.pdf
+server\arquivo\2026-08-19-pais-responsaveis.pdf
+```
+
+São PDFs comuns — abrem com dois cliques, imprimem e podem ser anexados a um
+e-mail. É a mesma folha que o botão **Exportar** gera, gerada pelo mesmo código.
+
+> **A ordem é a garantia:** o PDF é escrito e conferido **antes** do dia sair do
+> banco. Se a gravação falhar — disco cheio, pasta sem permissão — o dia
+> **continua no banco** e o servidor tenta de novo na passagem seguinte. Nenhum
+> turno é apagado sem cópia em disco.
+
+O servidor confere isso ao subir e depois a cada 6 horas, então uma máquina que
+fica semanas ligada mantém a limpeza em dia sozinha.
+
+**Essa pasta é a que interessa no backup**, junto com `server\data`. Veja
+[Backup](#backup--importante) abaixo.
+
+Para mudar a janela de 7 dias, ou desligar o expurgo, veja
+[`server/README.md`](server/README.md) (`RETENCAO_DIAS`, `ARQUIVO_DIR`).
+
 ### A barra de sincronização
 
 Cada folha tem uma barra cinza no topo:
@@ -197,9 +239,15 @@ e não precisa compilar nada. Se você estiver instalando na mão, use
 `npm install --prefix server --ignore-scripts`.
 
 **Onde ficam os dados?**
-No arquivo `server/data/registro.sqlite`, na própria máquina. Nada vai para a
-internet. Os registros dos turnos e o cadastro de viaturas e condutores ficam
-os dois no banco.
+Em dois lugares da própria máquina do servidor, e nada vai para a internet. Os
+últimos 7 dias e o cadastro de viaturas e condutores ficam no banco, em
+`server/data/registro.sqlite`. Os dias mais antigos ficam como PDF em
+`server/arquivo/`.
+
+**Preciso de um turno de duas semanas atrás. Ainda dá?**
+Sim: ele está em `server/arquivo/`, como PDF, na máquina do servidor. O nome é a
+data seguida da folha — `2026-08-11-viaturas.pdf`. O que não dá é reabri-lo para
+editar na tela; o PDF é a cópia final.
 
 ---
 
@@ -264,9 +312,16 @@ funcionando (com a janela aberta).
 
 ### Backup — importante
 
-Os dados ficam em `server/data/`. **Copie os três arquivos juntos**
-(`registro.sqlite`, `registro.sqlite-wal`, `registro.sqlite-shm`), ou pare o
-servidor antes de copiar apenas o `.sqlite`.
+São **duas** pastas a copiar, e as duas importam:
+
+| Pasta | O que tem |
+|---|---|
+| `server/data/` | o banco: os últimos 7 dias e o cadastro de viaturas e condutores |
+| `server/arquivo/` | os PDFs dos dias que já saíram do banco — **a única cópia deles** |
+
+De `server/data/`, **copie os três arquivos juntos** (`registro.sqlite`,
+`registro.sqlite-wal`, `registro.sqlite-shm`), ou pare o servidor antes de
+copiar apenas o `.sqlite`.
 
 Copiar só o `.sqlite` com o servidor ligado traz um banco quase vazio: as
 gravações recentes ainda estão no arquivo `-wal`.
@@ -345,7 +400,9 @@ INSTALAR-SERVICO.bat      sobe ao ligar a máquina; pede administrador uma vez
 DESINSTALAR-SERVICO.bat   remove o serviço
 servidor-oculto.vbs       lançador sem janela, usado pelos dois modos automáticos
 src/               a tela (React + TypeScript)
+shared/            schema e gerador de PDF usados pela tela E pelo servidor
 server/            o servidor: banco de dados + entrega do app (Node + SQLite)
+server/arquivo/    PDFs dos dias que sairam do banco (gerado; nao vai para o Git)
 dist/              o app compilado (gerado pelo build; não vai para o Git)
 fixtures/          arquivo de exemplo para testar a importação de listas
 ```
