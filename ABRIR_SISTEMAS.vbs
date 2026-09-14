@@ -24,14 +24,15 @@
 
 '=====================================================================
 ' 1. OS SITES - altere aqui
-'    Para acrescentar um quarto, copie a linha, mude o numero e inclua a
+'    Para acrescentar mais um, copie a linha, mude o numero e inclua a
 '    variavel na lista "sites" logo abaixo.
 '=====================================================================
 site1 = "http://localhost:4000"
 site2 = "https://intranet.cmdpii.com/index.php/mapos"
 site3 = "http://192.168.0.245:8080/"
+site4 = "https://romualdomedeiros.github.io/lista-wpfg-2027/index.html"
 
-sites = Array(site1, site2, site3)
+sites = Array(site1, site2, site3, site4)
 
 '=====================================================================
 ' 2. O REGISTRO DA GUARDA
