@@ -1,0 +1,29 @@
+ordem,nome_na_lista,faixa_etaria,nome_na_folha,pareamento,frequencia_pct,presencas,base_sessoes,OUT_2025,NOV_2025,DEZ_2025,MAR_2026,ABR_2026,AGO_2026
+1,Gabriel Soares,30 a 34,Gabriel Vicente Soares,ok,62,25,40,1/2,4/8,4/7,4/7,5/8,7/8
+2,Cézar,35 a 39,Cézar Souza Barbosa,ok,10,4,40,0,2/8,1/7,0,1/8,0
+3,Da Cunha,35 a 39,Alexandre Tavares Da Cunha,presumido,28,11,40,1/2,1/8,0,3/7,2/8,4/8
+4,Hugo Souza,35 a 39,Hugo Joseir Souza E Silva,ok,2,1,40,0,1/8,0,0,0,0
+5,LINDOMAR,35 a 39,Jose Lindomar Neres Junior,ok,0,0,40,0,0,0,0,0,0
+6,Mata,35 a 39,—,ambiguo,,,,,,,,,
+7,Vinícius Peixoto,35 a 39,Vinicius Peixoto Teixeira,ok,25,10,40,1/2,1/8,0,2/7,2/8,4/8
+8,Dantas,40 a 44,Fernando Dantas Santos,ok,2,1,40,0,0,0,1/7,0,0
+9,Ezio,40 a 44,Ezio Fernandes Feitosa,ok,8,3,40,2/2,1/8,0,0,0,0
+10,ROMUALDO,45 a 49,Romualdo Lima De Medeiros,ok,18,7,40,2/2,2/8,0,1/7,2/8,0
+11,Uendel,45 a 49,Uendel Dourado Gomes,ok,0,0,40,0,0,0,0,0,0
+12,G. Marques,50 a 54,Gilberto Marques Da Silva,ok,2,1,40,0,1/8,0,0,0,0
+13,Joviano,55 a 59,Joviano Fernandes Borges,ok,0,0,40,0,0,0,0,0,0
+14,Alecrim,60 a 64,Avanir De Alecrim Silva,ok,0,0,40,0,0,0,0,0,0
+15,Dias,75 ou mais,—,ambiguo,,,,,,,,,
+16,Daniele Coimbra,30 a 34,Daniele Coimbra Silva,ok,20,8,40,0,2/8,0,5/7,1/8,0
+17,A. Cardoso,30 a 34,Andressa Cristina Cardoso Aguiar,ok,42,17,40,0,8/8,0,4/7,0,5/8
+18,Flavia Meirelles,30 a 34,Flavia Meirelles De Souza,ok,0,0,40,0,0,0,0,0,0
+19,Thalita Lima,30 a 34,Thalita Cabral Lima,ok,0,0,40,0,0,0,0,0,0
+20,E. Ferreira,35 a 39,Ester Ferreira Santos,ok,5,2,40,0,0,1/7,0,1/8,0
+21,Larissa Coqueiro,35 a 39,Larissa Rodrigues Coqueiro,ok,40,16,40,0,0,0,5/7,4/8,7/8
+22,Ludmila,36 a 39,Ludmila Gualberto Andrade,ok,18,7,40,0,0,0,3/7,0,4/8
+23,N. Cavalcanti,35 a 39,Natalia Cavalcanti Lopes Lima,ok,50,20,40,0,0,0,7/7,7/8,6/8
+24,Sílvia,35 a 39,Sílvia De Araújo Jácomo,ok,5,2,40,0,1/8,0,1/7,0,0
+25,Venturelli,35 a 39,Aline Venturelli Ferreira Antonio,ok,70,28,40,2/2,7/8,4/7,7/7,8/8,0
+26,Ingrid,40 a 44,Ingrid Pereira Viana,ok,35,14,40,1/2,4/8,2/7,4/7,1/8,2/8
+27,Josilene,50 a 54,Josilene De Sousa Santos,ok,2,1,40,0,1/8,0,0,0,0
+28,Paula Dini,50 a 54,Paula Cristina De Deus Dini,ok,55,22,40,2/2,4/8,4/7,4/7,3/8,5/8
